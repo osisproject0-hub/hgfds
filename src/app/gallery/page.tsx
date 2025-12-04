@@ -2,13 +2,13 @@
 "use client"
 
 import Image from "next/image"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import Link from "next/link"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { useCollection, useFirestore, useMemoFirebase, useDoc } from "@/firebase"
 import { collection, query, doc } from "firebase/firestore"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { SiteSettings } from "@/app/admin/settings/page"
-
+import { ImageIcon, Images } from "lucide-react"
 
 type GalleryAlbum = {
     id: string;
@@ -30,101 +30,80 @@ export default function GalleryPage() {
     const { data: albums, isLoading } = useCollection<GalleryAlbum>(albumsQuery);
     
     const heroImage = settings?.galleryHeroImageUrl || "https://picsum.photos/seed/gallery-hero/1200/400";
-    
-    const allImages = albums?.flatMap(album => 
-        album.imageUrls.map(url => ({
-            id: `${album.id}-${url}`,
-            imageUrl: url,
-            description: album.name,
-            category: album.name
-        }))
-    ) || [];
-
-    const galleryCategories = ["All", ...(albums?.map(a => a.name) || [])];
 
     return (
         <div className="bg-background text-foreground">
-            <div className="bg-secondary">
-                <div className="container mx-auto px-4 md:px-6 py-12 text-center">
-                    <h1 className="text-4xl md:text-5xl font-extrabold text-foreground font-headline">Galeri Sekolah</h1>
-                    <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+            {/* Hero Section */}
+            <section className="relative h-64 md:h-80 w-full flex items-center justify-center text-center text-white">
+                <Image
+                    src={heroImage}
+                    alt="Galeri Sekolah"
+                    fill
+                    className="object-cover"
+                    priority
+                    data-ai-hint="gallery montage"
+                />
+                <div className="absolute inset-0 bg-primary/60" />
+                <div className="relative z-10 p-4">
+                    <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl font-headline">
+                        Galeri Sekolah
+                    </h1>
+                    <p className="mt-2 max-w-2xl mx-auto text-lg text-primary-foreground/90">
                         Lihat momen-momen, fasilitas, dan kegiatan di SMK LPPMRI 2 Kedungreja.
                     </p>
                 </div>
-            </div>
+            </section>
 
-            <main className="container mx-auto px-4 md:px-6 py-12 md:py-16">
-                {isLoading ? (
-                     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                        {Array.from({ length: 8 }).map((_, i) => (
-                            <Skeleton key={i} className="aspect-square w-full rounded-lg" />
-                        ))}
-                    </div>
-                ) : (
-                 <Tabs defaultValue="All" className="w-full">
-                    <div className="flex justify-center mb-8">
-                        <TabsList>
-                            {galleryCategories.map(category => (
-                                <TabsTrigger key={category} value={category}>{category}</TabsTrigger>
-                            ))}
-                        </TabsList>
-                    </div>
+            <main className="container mx-auto px-4 md:px-6 py-12 md:py-20">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                     {isLoading && Array.from({ length: 3 }).map((_, i) => (
+                        <Card key={i} className="overflow-hidden">
+                           <Skeleton className="h-56 w-full" />
+                           <CardHeader>
+                               <Skeleton className="h-6 w-3/4" />
+                               <Skeleton className="h-4 w-full mt-2" />
+                           </CardHeader>
+                           <CardContent>
+                                <Skeleton className="h-5 w-1/4" />
+                           </CardContent>
+                        </Card>
+                     ))}
+                     {albums?.map(album => (
+                        <Card key={album.id} className="flex flex-col overflow-hidden transition-shadow hover:shadow-lg group">
+                            <Link href={`/gallery/${album.id}`} className="block">
+                               <div className="relative h-56 w-full">
+                                   <Image 
+                                       src={album.imageUrls?.[0] || "https://picsum.photos/seed/placeholder/600/400"} 
+                                       alt={`Sampul untuk ${album.name}`}
+                                       fill
+                                       className="object-cover transition-transform group-hover:scale-105"
+                                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                   />
+                               </div>
+                            </Link>
+                           <CardHeader className="flex-grow">
+                               <CardTitle className="text-xl font-headline text-primary">
+                                 <Link href={`/gallery/${album.id}`}>{album.name}</Link>
+                               </CardTitle>
+                               <CardDescription className="line-clamp-2">{album.description}</CardDescription>
+                           </CardHeader>
+                           <CardContent>
+                                <div className="flex items-center text-sm text-muted-foreground">
+                                    <Images className="h-4 w-4 mr-2" />
+                                    <span>{album.imageUrls?.length || 0} foto</span>
+                                </div>
+                           </CardContent>
+                       </Card>
+                     ))}
+                </div>
 
-                    <TabsContent value="All">
-                        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                            {allImages.map((image, index) => (
-                                <Card key={`${image.id}-${index}`} className="overflow-hidden group cursor-pointer">
-                                    <CardContent className="p-0">
-                                        <div className="relative aspect-square w-full">
-                                            <Image
-                                                src={image.imageUrl || "https://picsum.photos/600/600"}
-                                                alt={image.description || "Gallery image"}
-                                                fill
-                                                className="object-cover transition-transform duration-300 group-hover:scale-110"
-                                                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                                            />
-                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                                                <p className="text-white text-sm font-semibold">{image.description}</p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </div>
-                    </TabsContent>
-
-                    {albums?.map(album => (
-                        <TabsContent key={album.id} value={album.name}>
-                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                                {album.imageUrls.map((url, index) => (
-                                    <Card key={`${album.id}-${url}-${index}`} className="overflow-hidden group cursor-pointer">
-                                        <CardContent className="p-0">
-                                            <div className="relative aspect-square w-full">
-                                                <Image
-                                                    src={url || "https://picsum.photos/600/600"}
-                                                    alt={`${album.name} - image ${index + 1}`}
-                                                    fill
-                                                    className="object-cover transition-transform duration-300 group-hover:scale-110"
-                                                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                                                />
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
-                            </div>
-                        </TabsContent>
-                    ))}
-                </Tabs>
-                )}
-
-                 {!isLoading && allImages?.length === 0 && (
+                 {!isLoading && albums?.length === 0 && (
                     <div className="text-center py-16 text-muted-foreground col-span-full">
-                        <p>Belum ada album atau gambar di galeri.</p>
+                         <ImageIcon className="h-12 w-12 mx-auto mb-4" />
+                        <p>Belum ada album di galeri.</p>
                     </div>
                 )}
             </main>
         </div>
     )
 }
-
-    
