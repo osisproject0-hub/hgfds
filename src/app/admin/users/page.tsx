@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useCollection, useFirestore, useMemoFirebase, updateDocumentNonBlocking } from "@/firebase"
+import { useCollection, useFirestore, useMemoFirebase, updateDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase"
 import { collection, query, doc } from "firebase/firestore"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -26,10 +26,23 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useUser as useAuthUser } from "@/firebase"
 
 type UserRole = 'Admin' | 'User' | 'Super Admin';
 
@@ -46,6 +59,7 @@ const roles: UserRole[] = ['Admin', 'User'];
 export default function AdminUsersPage() {
   const firestore = useFirestore()
   const { toast } = useToast()
+  const { user: currentUser } = useAuthUser();
   
   const usersQuery = useMemoFirebase(() => {
     if (!firestore) return null
@@ -85,6 +99,24 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleDeleteUser = async (userId: string) => {
+    if (!firestore) return;
+    const userDocRef = doc(firestore, "users", userId);
+    try {
+      await deleteDocumentNonBlocking(userDocRef);
+      toast({
+        title: "Pengguna Dihapus",
+        description: "Pengguna telah berhasil dihapus dari sistem.",
+      });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      toast({
+        variant: "destructive",
+        title: "Gagal Menghapus Pengguna",
+        description: "Terjadi kesalahan. Silakan coba lagi.",
+      });
+    }
+  };
 
   return (
     <Card>
@@ -127,7 +159,7 @@ export default function AdminUsersPage() {
                 <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" disabled={user.id === currentUser?.uid}>
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -141,6 +173,24 @@ export default function AdminUsersPage() {
                             Jadikan {role}
                           </DropdownMenuItem>
                         ))}
+                        <DropdownMenuSeparator />
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600">Hapus</DropdownMenuItem>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                              <AlertDialogHeader>
+                                  <AlertDialogTitle>Anda yakin?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                      Tindakan ini tidak dapat diurungkan. Ini akan menghapus pengguna <span className="font-semibold">{user.displayName || user.email}</span> secara permanen dari database.
+                                  </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeleteUser(user.id)}>Lanjutkan</AlertDialogAction>
+                              </AlertDialogFooter>
+                          </AlertDialogContent>
+                      </AlertDialog>
                       </DropdownMenuContent>
                     </DropdownMenu>
                 </TableCell>
