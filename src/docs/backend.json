@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "VocationalProgram": {
@@ -264,6 +263,41 @@
           "type": "string",
           "description": "The primary contact email address.",
           "format": "email"
+        },
+        "vision": {
+          "type": "string",
+          "description": "The school's vision statement."
+        },
+        "missionPoints": {
+          "type": "array",
+          "description": "A list of points outlining the school's mission.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "text": { "type": "string" }
+            }
+          }
+        },
+        "admissionRequirements": {
+          "type": "array",
+          "description": "A list of admission requirements for new students.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "text": { "type": "string" }
+            }
+          }
+        },
+        "admissionFaqs": {
+          "type": "array",
+          "description": "A list of frequently asked questions for admissions.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "question": { "type": "string" },
+              "answer": { "type": "string" }
+            }
+          }
         }
       },
       "required": [
@@ -356,3 +390,5 @@
     ]
   }
 }
+
+    

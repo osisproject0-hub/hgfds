@@ -2,18 +2,41 @@
 
 import Image from "next/image"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
-
-const missionPoints = [
-    { text: "Menyelenggarakan pendidikan yang berorientasi pada keahlian dan kebutuhan industri." },
-    { text: "Membentuk siswa yang berakhlak mulia, disiplin, dan bertanggung jawab." },
-    { text: "Mengembangkan potensi siswa melalui kegiatan ekstrakurikuler yang beragam." },
-    { text: "Membangun kerjasama yang erat dengan dunia usaha dan dunia industri (DUDI)." },
-    { text: "Menjadi lembaga pendidikan yang inovatif dan adaptif terhadap perkembangan zaman." },
-];
+import { useDoc, useFirestore, useMemoFirebase } from "@/firebase"
+import { doc } from "firebase/firestore"
+import { Skeleton } from "@/components/ui/skeleton"
+import type { SiteSettings } from "@/app/admin/settings/page"
 
 export default function AboutPage() {
+    const firestore = useFirestore()
+    const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore])
+    const { data: settings, isLoading } = useDoc<SiteSettings>(settingsDocRef)
+
     const aboutImage = PlaceHolderImages.find(img => img.id === 'about-preview');
     const heroImage = PlaceHolderImages.find(img => img.id === 'hero-bg');
+    
+    const VisionSkeleton = () => (
+        <div className="bg-secondary p-8 rounded-lg shadow-sm">
+            <Skeleton className="h-8 w-24 mb-4" />
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-4/5 mt-2" />
+        </div>
+    )
+
+    const MissionSkeleton = () => (
+        <div className="bg-secondary p-8 rounded-lg shadow-sm">
+            <Skeleton className="h-8 w-24 mb-4" />
+            <div className="space-y-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                        <Skeleton className="h-6 w-6 rounded-full" />
+                        <Skeleton className="h-5 w-full" />
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+
 
     return (
         <div className="bg-background text-foreground">
@@ -76,25 +99,42 @@ export default function AboutPage() {
                 </div>
 
                 <div className="mt-12 grid md:grid-cols-2 gap-8 items-start">
-                    <div className="bg-secondary p-8 rounded-lg shadow-sm">
-                        <h3 className="text-2xl font-bold font-headline text-primary mb-4">Visi</h3>
-                        <p className="text-lg text-muted-foreground">
-                            "Menjadi lembaga pendidikan kejuruan unggulan yang menghasilkan lulusan profesional, berkarakter, dan mampu bersaing di era global."
-                        </p>
-                    </div>
-                     <div className="bg-secondary p-8 rounded-lg shadow-sm">
-                        <h3 className="text-2xl font-bold font-headline text-primary mb-4">Misi</h3>
-                        <ul className="space-y-3 text-muted-foreground">
-                            {missionPoints.map((point, index) => (
-                                <li key={index} className="flex items-start">
-                                    <span className="text-primary font-bold mr-3">✓</span>
-                                    <span>{point.text}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                   {isLoading ? (
+                    <>
+                        <VisionSkeleton />
+                        <MissionSkeleton />
+                    </>
+                   ) : settings ? (
+                    <>
+                        <div className="bg-secondary p-8 rounded-lg shadow-sm">
+                            <h3 className="text-2xl font-bold font-headline text-primary mb-4">Visi</h3>
+                            <p className="text-lg text-muted-foreground">
+                                &quot;{settings.vision || "Visi belum diatur."}&quot;
+                            </p>
+                        </div>
+                         <div className="bg-secondary p-8 rounded-lg shadow-sm">
+                            <h3 className="text-2xl font-bold font-headline text-primary mb-4">Misi</h3>
+                            <ul className="space-y-3 text-muted-foreground">
+                                {settings.missionPoints?.length > 0 ? (
+                                    settings.missionPoints.map((point, index) => (
+                                        <li key={index} className="flex items-start">
+                                            <span className="text-primary font-bold mr-3">✓</span>
+                                            <span>{point.text}</span>
+                                        </li>
+                                    ))
+                                ) : (
+                                    <li>Misi belum diatur.</li>
+                                )}
+                            </ul>
+                        </div>
+                    </>
+                   ) : (
+                        <p className="col-span-2 text-center">Visi dan Misi tidak dapat dimuat.</p>
+                   )}
                 </div>
             </main>
         </div>
     )
 }
+
+    

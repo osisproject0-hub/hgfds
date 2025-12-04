@@ -7,37 +7,52 @@ import { FileText, UserCheck, CalendarDays, CheckCircle, ArrowRight } from 'luci
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import Link from "next/link"
-
-const admissionRequirements = [
-  "Fotokopi Ijazah SMP/sederajat (legalisir)",
-  "Fotokopi Kartu Keluarga (KK)",
-  "Fotokopi Akta Kelahiran",
-  "Pas Foto ukuran 3x4 (2 lembar)",
-  "Mengisi Formulir Pendaftaran",
-];
-
-const faqs = [
-  {
-    question: "Kapan pendaftaran dibuka?",
-    answer: "Pendaftaran untuk tahun ajaran baru biasanya dibuka mulai bulan Mei hingga Juli. Silakan pantau pengumuman resmi di situs web kami."
-  },
-  {
-    question: "Apakah ada tes masuk?",
-    answer: "Ya, kami mengadakan tes seleksi yang meliputi tes potensi akademik dan wawancara untuk menentukan minat dan bakat calon siswa."
-  },
-  {
-    question: "Berapa biaya pendaftarannya?",
-    answer: "Biaya pendaftaran dapat bervariasi setiap tahunnya. Informasi detail mengenai biaya akan diumumkan bersamaan dengan pembukaan pendaftaran."
-  },
-   {
-    question: "Program keahlian apa saja yang tersedia?",
-    answer: "Kami memiliki beberapa program keahlian unggulan, termasuk Teknik Mesin, Akuntansi, Multimedia, dan Pemasaran. Detailnya bisa dilihat di halaman Program."
-  }
-];
-
+import { useDoc, useFirestore, useMemoFirebase } from "@/firebase"
+import { doc } from "firebase/firestore"
+import type { SiteSettings } from "@/app/admin/settings/page"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function AdmissionsPage() {
     const heroImage = PlaceHolderImages.find(img => img.id === 'news-2');
+
+    const firestore = useFirestore()
+    const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore])
+    const { data: settings, isLoading } = useDoc<SiteSettings>(settingsDocRef)
+
+    const RequirementsSkeleton = () => (
+         <Card>
+            <CardHeader>
+                <Skeleton className="h-8 w-3/4" />
+                <Skeleton className="h-4 w-full mt-2" />
+            </CardHeader>
+            <CardContent>
+                <ul className="space-y-3">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                         <li key={i} className="flex items-center gap-3">
+                            <Skeleton className="h-5 w-5 rounded-full" />
+                            <Skeleton className="h-5 w-full" />
+                        </li>
+                    ))}
+                </ul>
+            </CardContent>
+        </Card>
+    );
+
+    const FaqSkeleton = () => (
+         <Card>
+            <CardHeader>
+                <Skeleton className="h-8 w-3/4" />
+                <Skeleton className="h-4 w-full mt-2" />
+            </CardHeader>
+            <CardContent>
+                <div className="space-y-2">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <Skeleton key={i} className="h-12 w-full" />
+                    ))}
+                </div>
+            </CardContent>
+        </Card>
+    );
 
     return (
         <div className="bg-background text-foreground">
@@ -107,22 +122,25 @@ export default function AdmissionsPage() {
 
                 {/* Requirements & FAQ */}
                 <section className="grid md:grid-cols-2 gap-12 items-start">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-2xl font-headline">Persyaratan Pendaftaran</CardTitle>
-                            <CardDescription>Pastikan Anda telah menyiapkan semua dokumen yang diperlukan.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <ul className="space-y-3">
-                                {admissionRequirements.map((req, index) => (
-                                    <li key={index} className="flex items-center">
-                                        <CheckCircle className="h-5 w-5 text-accent mr-3 flex-shrink-0" />
-                                        <span className="text-muted-foreground">{req}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </CardContent>
-                    </Card>
+                    {isLoading ? <RequirementsSkeleton /> : (
+                         <Card>
+                            <CardHeader>
+                                <CardTitle className="text-2xl font-headline">Persyaratan Pendaftaran</CardTitle>
+                                <CardDescription>Pastikan Anda telah menyiapkan semua dokumen yang diperlukan.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <ul className="space-y-3">
+                                    {settings?.admissionRequirements?.length ? settings.admissionRequirements.map((req, index) => (
+                                        <li key={index} className="flex items-center">
+                                            <CheckCircle className="h-5 w-5 text-accent mr-3 flex-shrink-0" />
+                                            <span className="text-muted-foreground">{req.text}</span>
+                                        </li>
+                                    )) : <p className="text-muted-foreground">Persyaratan akan segera diumumkan.</p>}
+                                </ul>
+                            </CardContent>
+                        </Card>
+                    )}
+                   {isLoading ? <FaqSkeleton /> : (
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-2xl font-headline">Pertanyaan Umum (FAQ)</CardTitle>
@@ -130,17 +148,18 @@ export default function AdmissionsPage() {
                         </CardHeader>
                         <CardContent>
                            <Accordion type="single" collapsible className="w-full">
-                                {faqs.map((faq, index) => (
+                                {settings?.admissionFaqs?.length ? settings.admissionFaqs.map((faq, index) => (
                                     <AccordionItem key={index} value={`item-${index}`}>
                                         <AccordionTrigger className="text-left">{faq.question}</AccordionTrigger>
                                         <AccordionContent className="text-muted-foreground">
                                             {faq.answer}
                                         </AccordionContent>
                                     </AccordionItem>
-                                ))}
+                                )) : <p className="text-muted-foreground">Belum ada pertanyaan umum.</p>}
                             </Accordion>
                         </CardContent>
                     </Card>
+                   )}
                 </section>
 
                  {/* Call to Action */}
@@ -159,3 +178,5 @@ export default function AdmissionsPage() {
         </div>
     )
 }
+
+    
