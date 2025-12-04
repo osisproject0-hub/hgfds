@@ -26,7 +26,9 @@ service cloud.firestore {
     }
     
     function isFirstUser() {
-        return !exists(/databases/$(database)/documents/users/);
+      // Check if the 'users' collection is empty.
+      // This is a secure way to check for the first user during user creation.
+      return !exists(/databases/$(database)/documents/users);
     }
     
     //----------------------------------------------------------------------
@@ -59,13 +61,15 @@ service cloud.firestore {
 
     match /applications/{applicationId} {
       allow create: if true;
+      // Admins can read, list, and update the status of applications.
       allow read, list, update, delete: if isAdmin();
     }
 
     match /contactMessages/{contactMessageId} {
       allow create: if true;
       allow read, list: if isAdmin();
-      allow update, delete: if false; // Messages are immutable
+      // Make messages immutable after creation.
+      allow update, delete: if false; 
     }
 
     //----------------------------------------------------------------------
@@ -74,17 +78,18 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow get: if isOwner(userId) || isAdmin();
+      // Allow both Admin and Super Admin to list users.
       allow list: if isAdmin();
       
-      allow create: if isOwner(userId) && (
-          (isFirstUser() && request.resource.data.role == 'Super Admin') ||
-          (!isFirstUser() && request.resource.data.role == 'User')
-      );
+      // Allow user creation. The role is determined by the `isFirstUser` function.
+      // Anyone can create a user document for themselves, but the role is protected.
+      allow create: if isOwner(userId) && 
+                      (request.resource.data.role == 'Super Admin' ? isFirstUser() : request.resource.data.role == 'User');
                       
       // A user can update their own displayName and photoURL, but not their role.
       allow update: if isOwner(userId) && 
-                      request.resource.data.keys().hasAll(['displayName', 'photoURL']) && 
-                      !request.resource.data.keys().has('role');
+                      !('role' in request.resource.data) &&
+                      request.resource.data.keys().hasAny(['displayName', 'photoURL']);
       
       // Only a Super Admin can change other users' roles or delete users.
       allow update, delete: if isSuperAdmin(); 
