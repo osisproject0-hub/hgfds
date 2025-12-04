@@ -51,18 +51,15 @@ export default function AdminSignupPage() {
         // 2. Update user profile in Auth
         await updateProfile(user, { displayName })
 
-        // 3. Create user document in Firestore. The role will be set by security rules.
+        // 3. Create user document in Firestore.
+        // The role will be set by the security rules implemented in `firestore.rules`.
         const userDocRef = doc(firestore, "users", user.uid)
-        
-        // We are intentionally not setting the role here. 
-        // The security rule will detect if this is the first user and assign 'Super Admin' role.
-        // For subsequent users, we'd need a Cloud Function or admin action to assign roles.
-        // For this implementation, we rely on the rule for the first user, and subsequent users will need manual role assignment or a future feature.
         await setDoc(userDocRef, {
             displayName: displayName,
             email: user.email,
-            photoURL: user.photoURL
-            // Role is NOT set on the client. It will be determined by security rules.
+            photoURL: user.photoURL,
+            // The role is NOT set on the client. It will be determined by security rules.
+            // The first registered user will be 'Super Admin', subsequent users will be 'User'.
         })
 
         toast({
@@ -75,10 +72,19 @@ export default function AdminSignupPage() {
 
       } catch (error: any) {
         console.error("Signup failed:", error)
+        let description = "An unexpected error occurred. Please try again."
+        if (error.code === 'auth/email-already-in-use') {
+          description = "This email is already registered. Please log in or use a different email."
+        } else if (error.code === 'auth/weak-password') {
+          description = "The password is too weak. Please use at least 6 characters."
+        } else if (error.message) {
+          description = error.message;
+        }
+
         toast({
           variant: "destructive",
           title: "Signup Failed",
-          description: error.message || "An unexpected error occurred. Please try again.",
+          description: description,
         })
       }
     })
