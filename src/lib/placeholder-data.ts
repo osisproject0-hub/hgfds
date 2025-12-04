@@ -32,11 +32,12 @@ const findImage = (id: string): ImagePlaceholder => {
 
 export const navLinks = [
   { href: '/', label: 'Home' },
-  { href: '/about', label: 'About Us' },
-  { href: '/programs', label: 'Programs' },
-  { href: '/admissions', label: 'Admissions' },
-  { href: '/news', label: 'News & Events' },
-  { href: '/contact', label: 'Contact' },
+  { href: '/about', label: 'Tentang Kami' },
+  { href: '/programs', label: 'Program' },
+  { href: '/admissions', label: 'Penerimaan' },
+  { href: '/gallery', label: 'Galeri' },
+  { href: '/news', label: 'Berita & Acara' },
+  { href: '/contact', label: 'Kontak' },
 ];
 
 export const featuredPrograms = [
