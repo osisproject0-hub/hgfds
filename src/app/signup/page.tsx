@@ -16,9 +16,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { useAuth, useFirestore } from "@/firebase"
+import { useAuth, useFirestore, setDocumentNonBlocking } from "@/firebase"
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
-import { doc, setDoc } from "firebase/firestore"
+import { doc } from "firebase/firestore"
 import Image from "next/image"
 
 export default function AdminSignupPage() {
@@ -52,23 +52,21 @@ export default function AdminSignupPage() {
         // 2. Update user profile in Auth
         await updateProfile(user, { displayName })
 
-        // 3. Create user document in Firestore.
-        // The role is now managed by custom claims, not set on the client.
+        // 3. Create user document in Firestore with a default 'User' role.
         const userDocRef = doc(firestore, "users", user.uid)
-        await setDoc(userDocRef, {
+        await setDocumentNonBlocking(userDocRef, {
             displayName: displayName,
             email: user.email,
             photoURL: user.photoURL,
-            role: 'User' // Default role, to be changed by an Admin/Super Admin via custom claims
-        })
+            role: 'User' // Default role for new sign-ups
+        }, {})
 
         toast({
           title: "Pendaftaran Berhasil",
-          description: `Selamat datang, ${displayName}! Mengarahkan Anda ke dasbor admin. Catatan: Peran Anda adalah 'Pengguna'. Seorang admin harus memberikan hak akses lebih lanjut.`,
+          description: `Selamat datang, ${displayName}! Mengarahkan Anda ke dasbor admin.`,
         })
-
-        // A small delay to allow Firestore rules to process and the user object to be updated.
-        setTimeout(() => router.push("/admin"), 1000);
+        
+        router.push("/admin")
 
       } catch (error: any) {
         console.error("Gagal mendaftar:", error)
@@ -97,7 +95,7 @@ export default function AdminSignupPage() {
           <div className="grid gap-2 text-center">
             <h1 className="text-3xl font-bold font-headline">Buat Akun Admin</h1>
             <p className="text-balance text-muted-foreground">
-              Masukkan detail Anda untuk membuat akun baru. Admin yang sudah ada harus memberikan hak akses.
+              Masukkan detail Anda untuk membuat akun baru.
             </p>
           </div>
           <form onSubmit={handleSignup}>

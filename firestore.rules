@@ -15,6 +15,13 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(userId)).data;
     }
 
+    function isSuperAdmin() {
+       if (!isSignedIn()) {
+        return false;
+      }
+      return getUserData(request.auth.uid).role == 'Super Admin';
+    }
+
     function isAdmin() {
       if (!isSignedIn()) {
         return false;
@@ -73,14 +80,21 @@ service cloud.firestore {
       // Any authenticated user can get any user's data and list all users (for the admin panel)
       allow get, list: if isSignedIn();
       
-      // Allow user creation.
+      // Allow user creation for anyone (signup).
       allow create: if true;
                       
-      // A user can update their own displayName and photoURL. Admins can update any user.
-      allow update: if (request.auth.uid == userId && !('role' in request.resource.data.keys())) || isAdmin();
+      // A user can update their own displayName and photoURL.
+      // An Admin can update any user's displayName and photoURL.
+      // A Super Admin can update any user's displayName, photoURL, and role.
+      // No one can change their own role.
+      allow update: if (request.auth.uid == userId && !('role' in request.resource.data.keys())) ||
+                      (isAdmin() && !isSuperAdmin() && !('role' in request.resource.data.keys())) ||
+                      isSuperAdmin();
       
-      // Only admins can delete users.
-      allow delete: if isAdmin(); 
+      // Only admins can delete users, but not themselves or other admins/superadmins unless they are superadmin.
+      allow delete: if isAdmin() && 
+                       request.auth.uid != userId && 
+                       (isSuperAdmin() || getUserData(userId).role == 'User');
     }
 
     //----------------------------------------------------------------------

@@ -63,13 +63,15 @@ export default function AdminUsersPage() {
   const firestore = useFirestore()
   const { toast } = useToast()
   const { user: currentUser } = useAuthUser();
+  const [userToDelete, setUserToDelete] = React.useState<User | null>(null);
+
   
   const usersQuery = useMemoFirebase(() => {
     if (!firestore) return null
     return query(
       collection(firestore, "users")
     )
-  }, [firestore, currentUser?.uid])
+  }, [firestore])
 
   const { data: users, isLoading } = useCollection<User>(usersQuery)
 
@@ -85,6 +87,17 @@ export default function AdminUsersPage() {
 
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
     if (!firestore) return;
+
+    const currentUserData = users?.find(u => u.id === currentUser?.uid);
+    if (currentUserData?.role !== 'Super Admin' && newRole === 'Super Admin') {
+        toast({
+            variant: "destructive",
+            title: "Akses Ditolak",
+            description: "Hanya Super Admin yang dapat menetapkan peran Super Admin.",
+        });
+        return;
+    }
+
     const userDocRef = doc(firestore, "users", userId);
     try {
       await updateDocumentNonBlocking(userDocRef, { role: newRole });
@@ -118,10 +131,26 @@ export default function AdminUsersPage() {
         title: "Gagal Menghapus Pengguna",
         description: "Terjadi kesalahan. Silakan coba lagi.",
       });
+    } finally {
+        setUserToDelete(null);
     }
   };
 
+  const isSuperAdmin = users?.find(u => u.id === currentUser?.uid)?.role === 'Super Admin';
+
+  const canEdit = (targetUser: User) => {
+    if (!currentUser) return false;
+    // Cannot edit self
+    if (targetUser.id === currentUser.uid) return false;
+    // Super Admin can edit anyone
+    if (isSuperAdmin) return true;
+    // Admin cannot edit Super Admins
+    if (targetUser.role === 'Super Admin') return false;
+    return true;
+  }
+
   return (
+    <>
     <Card>
       <CardHeader>
         <CardTitle>Pengguna</CardTitle>
@@ -145,24 +174,25 @@ export default function AdminUsersPage() {
               </TableRow>
             )}
             {users && users.length > 0 ? users.map((user) => (
-              <TableRow key={user.id}>
+              <TableRow key={user.id} className={user.id === currentUser?.uid ? 'bg-muted/50' : ''}>
                 <TableCell className="flex items-center gap-4">
                    <Avatar>
                         {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
                         <AvatarFallback>{getInitials(user.displayName, user.email)}</AvatarFallback>
                     </Avatar>
                     <div>
-                        <div className="font-medium">{user.displayName || 'No Name'}</div>
+                        <div className="font-medium">{user.displayName || 'No Name'} {user.id === currentUser?.uid && '(Anda)'}</div>
                         <div className="text-sm text-muted-foreground">{user.email}</div>
                     </div>
                 </TableCell>
                 <TableCell>
-                    <Badge variant={user.role === 'Admin' || user.role === 'Super Admin' ? 'default' : 'secondary'}>{user.role || 'User'}</Badge>
+                    <Badge variant={user.role === 'Admin' || user.role === 'Super Admin' ? 'destructive' : 'secondary'}>{user.role || 'User'}</Badge>
                 </TableCell>
                 <TableCell className="text-right">
+                  {canEdit(user) && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" disabled={user.id === currentUser?.uid}>
+                        <Button variant="ghost" size="icon">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -174,7 +204,7 @@ export default function AdminUsersPage() {
                                 {roles.map((role) => (
                                   <DropdownMenuItem 
                                     key={role}
-                                    disabled={user.role === role}
+                                    disabled={(role === 'Super Admin' && !isSuperAdmin) || user.role === role}
                                     onSelect={() => handleRoleChange(user.id, role)}
                                   >
                                     Jadikan {role}
@@ -184,25 +214,12 @@ export default function AdminUsersPage() {
                           </DropdownMenuPortal>
                         </DropdownMenuSub>
                         <DropdownMenuSeparator />
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600">Hapus Pengguna</DropdownMenuItem>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                              <AlertDialogHeader>
-                                  <AlertDialogTitle>Anda yakin?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                      Tindakan ini tidak dapat diurungkan. Ini akan menghapus pengguna <span className="font-semibold">{user.displayName || user.email}</span> secara permanen dari database.
-                                  </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                  <AlertDialogCancel>Batal</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleDeleteUser(user.id)}>Lanjutkan</AlertDialogAction>
-                              </AlertDialogFooter>
-                          </AlertDialogContent>
-                      </AlertDialog>
+                        <DropdownMenuItem onSelect={() => setUserToDelete(user)} className="text-red-600">
+                          Hapus Pengguna
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
+                  )}
                 </TableCell>
               </TableRow>
             )) : !isLoading && (
@@ -214,5 +231,20 @@ export default function AdminUsersPage() {
         </Table>
       </CardContent>
     </Card>
+     <AlertDialog open={!!userToDelete} onOpenChange={(open) => !open && setUserToDelete(null)}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Anda yakin?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    Tindakan ini tidak dapat diurungkan. Ini akan menghapus pengguna <span className="font-semibold">{userToDelete?.displayName || userToDelete?.email}</span> secara permanen dari database.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel>Batal</AlertDialogCancel>
+                <AlertDialogAction onClick={() => userToDelete && handleDeleteUser(userToDelete.id)}>Lanjutkan</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+    </>
   )
 }
