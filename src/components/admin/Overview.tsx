@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Card,
   CardContent,
@@ -6,11 +8,34 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { adminOverviewData } from "@/lib/placeholder-data"
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
+import { collection, query } from "firebase/firestore"
+import { GraduationCap, Users } from "lucide-react"
 
 export default function Overview() {
+  const firestore = useFirestore()
+
+  const studentsQuery = useMemoFirebase(() => {
+    if (!firestore) return null
+    return query(collection(firestore, "students"))
+  }, [firestore])
+  const { data: students } = useCollection(studentsQuery)
+
+  const applicationsQuery = useMemoFirebase(() => {
+    if (!firestore) return null
+    return query(collection(firestore, "applications"))
+  }, [firestore])
+  const { data: applications } = useCollection(applicationsQuery)
+
+  const overviewData = [
+    { title: "Total Students", value: students?.length ?? 0, change: "", icon: Users, collection: "students" },
+    { title: "New Applications", value: applications?.length ?? 0, change: "", icon: GraduationCap, collection: "applications" },
+    ...adminOverviewData.slice(2),
+  ]
+
   return (
     <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-      {adminOverviewData.map((item) => (
+      {overviewData.map((item) => (
          <Card key={item.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -20,9 +45,9 @@ export default function Overview() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold font-headline">{item.value}</div>
-              <p className="text-xs text-muted-foreground">
-                {item.change} from last month
-              </p>
+              {item.change && <p className="text-xs text-muted-foreground">
+                {item.change}
+              </p>}
             </CardContent>
           </Card>
       ))}

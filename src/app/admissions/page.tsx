@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { FileText, UserCheck, CalendarDays, CheckCircle, ArrowRight } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import Link from "next/link"
 
 const admissionRequirements = [
   "Fotokopi Ijazah SMP/sederajat (legalisir)",
@@ -148,8 +149,10 @@ export default function AdmissionsPage() {
                     <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
                         Jangan lewatkan kesempatan untuk menjadi bagian dari komunitas kami.
                     </p>
-                    <Button size="lg" className="mt-8">
-                        Daftar Sekarang <ArrowRight className="ml-2 h-5 w-5" />
+                    <Button size="lg" className="mt-8" asChild>
+                        <Link href="/apply">
+                            Daftar Sekarang <ArrowRight className="ml-2 h-5 w-5" />
+                        </Link>
                     </Button>
                 </section>
             </main>

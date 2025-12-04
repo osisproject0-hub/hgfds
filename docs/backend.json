@@ -455,8 +455,7 @@
   },
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "password"
     ]
   },
   "firestore": {
@@ -468,13 +467,7 @@
           "schema": {
             "$ref": "#/backend/entities/VocationalProgram"
           },
-          "description": "Stores information about vocational programs offered by the school.",
-          "params": [
-            {
-              "name": "vocationalProgramId",
-              "description": "Unique identifier for the vocational program."
-            }
-          ]
+          "description": "Stores information about vocational programs offered by the school."
         }
       },
       {
@@ -484,13 +477,7 @@
           "schema": {
             "$ref": "#/backend/entities/NewsArticle"
           },
-          "description": "Stores news articles and announcements.",
-          "params": [
-            {
-              "name": "newsArticleId",
-              "description": "Unique identifier for the news article."
-            }
-          ]
+          "description": "Stores news articles and announcements."
         }
       },
       {
@@ -500,13 +487,7 @@
           "schema": {
             "$ref": "#/backend/entities/Event"
           },
-          "description": "Stores information about school events.",
-          "params": [
-            {
-              "name": "eventId",
-              "description": "Unique identifier for the event."
-            }
-          ]
+          "description": "Stores information about school events."
         }
       },
       {
@@ -516,13 +497,7 @@
           "schema": {
             "$ref": "#/backend/entities/GalleryAlbum"
           },
-          "description": "Stores gallery albums containing images and videos.",
-          "params": [
-            {
-              "name": "galleryAlbumId",
-              "description": "Unique identifier for the gallery album."
-            }
-          ]
+          "description": "Stores gallery albums containing images and videos."
         }
       },
       {
@@ -532,13 +507,7 @@
           "schema": {
             "$ref": "#/backend/entities/Testimonial"
           },
-          "description": "Stores testimonials from students, alumni, or parents.",
-          "params": [
-            {
-              "name": "testimonialId",
-              "description": "Unique identifier for the testimonial."
-            }
-          ]
+          "description": "Stores testimonials from students, alumni, or parents."
         }
       },
       {
@@ -548,33 +517,17 @@
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "description": "Stores user information for admin panel users. The 'role' field is used for authorization.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "Unique identifier for the user."
-            }
-          ]
+          "description": "Stores user information for admin panel users. The 'role' field is used for authorization."
         }
       },
       {
-        "path": "/users/{userId}/applications/{applicationId}",
+        "path": "/applications/{applicationId}",
         "definition": {
           "entityName": "Application",
           "schema": {
             "$ref": "#/backend/entities/Application"
           },
-          "description": "Stores student applications. Path-based ownership is used for security. Includes denormalized program details if needed.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "Unique identifier for the user who owns the application."
-            },
-            {
-              "name": "applicationId",
-              "description": "Unique identifier for the application."
-            }
-          ]
+          "description": "Stores student applications in a single collection for easier admin querying."
         }
       },
       {
@@ -584,13 +537,7 @@
           "schema": {
             "$ref": "#/backend/entities/Subject"
           },
-          "description": "Stores information about subjects taught in the school.",
-          "params": [
-            {
-              "name": "subjectId",
-              "description": "Unique identifier for the subject."
-            }
-          ]
+          "description": "Stores information about subjects taught in the school."
         }
       },
       {
@@ -600,13 +547,7 @@
           "schema": {
             "$ref": "#/backend/entities/Teacher"
           },
-          "description": "Stores information about teachers in the school.",
-          "params": [
-            {
-              "name": "teacherId",
-              "description": "Unique identifier for the teacher."
-            }
-          ]
+          "description": "Stores information about teachers in the school."
         }
       },
       {
@@ -616,13 +557,7 @@
           "schema": {
             "$ref": "#/backend/entities/Student"
           },
-          "description": "Stores information about students in the school.",
-          "params": [
-            {
-              "name": "studentId",
-              "description": "Unique identifier for the student."
-            }
-          ]
+          "description": "Stores information about students in the school."
         }
       },
       {
@@ -632,13 +567,7 @@
           "schema": {
             "$ref": "#/backend/entities/Class"
           },
-          "description": "Stores information about classes or courses.",
-          "params": [
-            {
-              "name": "classId",
-              "description": "Unique identifier for the class."
-            }
-          ]
+          "description": "Stores information about classes or courses."
         }
       },
       {
@@ -648,20 +577,10 @@
           "schema": {
             "$ref": "#/backend/entities/Attendance"
           },
-          "description": "Stores attendance records for students. Path-based ownership under student ID.",
-          "params": [
-            {
-              "name": "studentId",
-              "description": "Unique identifier for the student."
-            },
-            {
-              "name": "attendanceId",
-              "description": "Unique identifier for the attendance record."
-            }
-          ]
+          "description": "Stores attendance records for students. Path-based ownership under student ID."
         }
       }
     ],
-    "reasoning": "The Firestore data structure is designed to support the SMK LPPMRI 2 Kedungreja website, focusing on scalability, security, and ease of management. Authorization Independence is achieved by avoiding hierarchical authorization dependencies, relying instead on denormalized data and path-based ownership where applicable. Structural Segregation ensures collections contain homogeneous data with similar security needs, simplifying security rules.\n\n**Authorization Independence (CRITICAL):** We avoid `get()` calls in rules by denormalizing authorization data. For example, if access to applications depended on the vocational program, the program details would be copied into the application document.\n\n**QAPs (Rules are not Filters):** Secure `list` operations are supported through structural segregation and appropriate use of path-based ownership.  For example, applications are stored under a user's ID (`/users/{userId}/applications/{applicationId}`), allowing listing only for the owner. Public data like news articles and events are stored in root-level collections with clearly defined read access rules.\n\n**DBAC (No Custom Claims):** User roles are stored directly in the `/users/{userId}` document, enabling rules to validate the `role` field against allowed values.\n\nThe design incorporates the following key strategies:\n\n*   **Path-Based Ownership:** User-specific data like applications is stored under the `/users/{userId}` path.\n*   **Membership Maps:** For collaborative data (if any), we would use a `members` map within the document.\n*   **Structural Segregation:** Public data like news articles and events are stored in root-level collections, separate from private user data.\n*   **Explicit State Modeling:** The `Application` entity uses a `status` field to explicitly track the application's state.\n"
+    "reasoning": "The Firestore data structure has been updated to place the 'applications' collection at the root level. This change significantly simplifies querying for administrators, who now need to list all applications regardless of the user who submitted them. The previous nested structure (`/users/{userId}/applications/{applicationId}`) was ideal for user-specific queries but cumbersome for admin-level data aggregation. By moving it to `/applications/{applicationId}`, we enable straightforward `list` operations for the admin panel while still being able to secure it so that only admins can read all applications and users can only read their own (if needed, through rules). All other collections remain as they were, following principles of structural segregation and role-based access control via the 'role' field in the '/users/{userId}' documents."
   }
 }

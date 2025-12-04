@@ -1,6 +1,8 @@
 "use client"
 
+import { useState, useTransition } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -11,9 +13,40 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { BookHeart } from "lucide-react"
+import { BookHeart, Loader2 } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/firebase"
+import { signInWithEmailAndPassword } from "firebase/auth"
 
 export default function AdminLoginPage() {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [isPending, startTransition] = useTransition()
+  const auth = useAuth()
+  const router = useRouter()
+  const { toast } = useToast()
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault()
+    startTransition(async () => {
+      try {
+        await signInWithEmailAndPassword(auth, email, password)
+        toast({
+          title: "Login Successful",
+          description: "Redirecting you to the admin dashboard.",
+        })
+        router.push("/admin")
+      } catch (error: any) {
+        console.error("Login failed:", error)
+        toast({
+          variant: "destructive",
+          title: "Login Failed",
+          description: error.message || "Please check your credentials and try again.",
+        })
+      }
+    })
+  }
+
   return (
     <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
       <div className="flex items-center justify-center py-12">
@@ -24,32 +57,44 @@ export default function AdminLoginPage() {
               Enter your email below to login to your account
             </p>
           </div>
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <Link
-                  href="#"
-                  className="ml-auto inline-block text-sm underline"
-                >
-                  Forgot your password?
-                </Link>
+          <form onSubmit={handleLogin}>
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isPending}
+                />
               </div>
-              <Input id="password" type="password" required />
+              <div className="grid gap-2">
+                <div className="flex items-center">
+                  <Label htmlFor="password">Password</Label>
+                  <Link
+                    href="#"
+                    className="ml-auto inline-block text-sm underline"
+                  >
+                    Forgot your password?
+                  </Link>
+                </div>
+                <Input 
+                  id="password" 
+                  type="password" 
+                  required 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isPending}
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logging in...</> : 'Login'}
+              </Button>
             </div>
-            <Button type="submit" className="w-full" asChild>
-                <Link href="/admin">Login</Link>
-            </Button>
-          </div>
+          </form>
         </div>
       </div>
       <div className="hidden bg-primary lg:flex lg:items-center lg:justify-center lg:flex-col lg:text-center p-12">

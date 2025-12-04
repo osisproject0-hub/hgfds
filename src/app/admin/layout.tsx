@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   Sidebar,
   SidebarProvider,
@@ -18,6 +18,9 @@ import { BookHeart, LogOut } from 'lucide-react'
 import { adminNavLinks } from "@/lib/placeholder-data"
 import { Button } from "@/components/ui/button"
 import AdminHeader from "@/components/admin/AdminHeader"
+import { useAuth, useUser } from "@/firebase"
+import { signOut } from "firebase/auth"
+import { useToast } from "@/hooks/use-toast"
 
 export default function AdminLayout({
   children,
@@ -25,6 +28,43 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const auth = useAuth()
+  const { user, isUserLoading } = useUser()
+  const { toast } = useToast()
+
+  React.useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.replace('/login')
+    }
+  }, [isUserLoading, user, router])
+
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth)
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      })
+      router.push('/login')
+    } catch (error) {
+      console.error("Logout failed:", error)
+      toast({
+        variant: "destructive",
+        title: "Logout Failed",
+        description: "An error occurred during logout. Please try again.",
+      })
+    }
+  }
+  
+  if (isUserLoading || !user) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    )
+  }
 
   return (
     <SidebarProvider>
@@ -62,15 +102,15 @@ export default function AdminLayout({
           <SidebarFooter className="border-t border-sidebar-border">
             <div className="flex items-center gap-3 p-2 group-data-[collapsible=icon]:justify-center">
               <Avatar className="h-9 w-9">
-                <AvatarImage src="https://picsum.photos/seed/admin/100/100" alt="Admin" />
-                <AvatarFallback>A</AvatarFallback>
+                <AvatarImage src={user?.photoURL || "https://picsum.photos/seed/admin/100/100"} alt="Admin" />
+                <AvatarFallback>{user?.email?.charAt(0).toUpperCase() || 'A'}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                <span className="font-semibold text-sm">Admin User</span>
-                <span className="text-xs text-sidebar-foreground/70">admin@school.com</span>
+                <span className="font-semibold text-sm">{user?.displayName || 'Admin User'}</span>
+                <span className="text-xs text-sidebar-foreground/70">{user?.email}</span>
               </div>
-              <Button variant="ghost" size="icon" className="ml-auto group-data-[collapsible=icon]:hidden" asChild>
-                <Link href="/login"><LogOut /></Link>
+              <Button variant="ghost" size="icon" className="ml-auto group-data-[collapsible=icon]:hidden" onClick={handleLogout}>
+                <LogOut />
               </Button>
             </div>
           </SidebarFooter>

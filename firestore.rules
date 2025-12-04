@@ -79,134 +79,110 @@ service cloud.firestore {
      * @description Manages vocational programs. Publicly readable by anyone, but
      *   only administrators can create, update, or delete entries.
      * @path /vocationalPrograms/{vocationalProgramId}
-     * @allow (get) Any user, signed in or not, can read a program.
-     * @deny (create) A signed-in user without an admin role cannot create a program.
-     * @principle Public read with role-based write access.
      */
     match /vocationalPrograms/{vocationalProgramId} {
       allow get, list: if true;
-      allow create, update, delete: if isAdmin();
+      allow write: if isAdmin();
     }
 
     /**
      * @description Manages news articles. Publicly readable by anyone, but
      *   only administrators can create, update, or delete articles.
      * @path /newsArticles/{newsArticleId}
-     * @allow (get) Any user, signed in or not, can read a news article.
-     * @deny (update) A signed-in user without an admin role cannot update an article.
-     * @principle Public read with role-based write access.
      */
     match /newsArticles/{newsArticleId} {
       allow get, list: if true;
-      allow create, update, delete: if isAdmin();
+      allow write: if isAdmin();
     }
 
     /**
      * @description Manages school events. Publicly readable by anyone, but
      *   only administrators can create, update, or delete events.
      * @path /events/{eventId}
-     * @allow (get) Any user, signed in or not, can read an event.
-     * @deny (delete) A signed-in user without an admin role cannot delete an event.
-     * @principle Public read with role-based write access.
      */
     match /events/{eventId} {
       allow get, list: if true;
-      allow create, update, delete: if isAdmin();
+      allow write: if isAdmin();
     }
 
     /**
      * @description Manages gallery albums. Publicly readable by anyone, but
      *   only administrators can create, update, or delete albums.
      * @path /galleryAlbums/{galleryAlbumId}
-     * @allow (list) Any user, signed in or not, can list all gallery albums.
-     * @deny (create) A signed-in user without an admin role cannot create an album.
-     * @principle Public read with role-based write access.
      */
     match /galleryAlbums/{galleryAlbumId} {
       allow get, list: if true;
-      allow create, update, delete: if isAdmin();
+      allow write: if isAdmin();
     }
 
     /**
      * @description Manages testimonials. Publicly readable by anyone, but
      *   only administrators can create, update, or delete testimonials.
      * @path /testimonials/{testimonialId}
-     * @allow (get) Any user, signed in or not, can read a testimonial.
-     * @deny (update) A signed-in user without an admin role cannot update a testimonial.
-     * @principle Public read with role-based write access.
      */
     match /testimonials/{testimonialId} {
       allow get, list: if true;
-      allow create, update, delete: if isAdmin();
+      allow write: if isAdmin();
     }
     
     /**
      * @description Manages school subjects. Publicly readable by anyone, but
      *   only administrators can create, update, or delete subjects.
      * @path /subjects/{subjectId}
-     * @allow (get) Any user, signed in or not, can read a subject.
-     * @deny (create) A signed-in user without an admin role cannot create a subject.
-     * @principle Public read with role-based write access.
      */
     match /subjects/{subjectId} {
       allow get, list: if true;
-      allow create, update, delete: if isAdmin();
+      allow write: if isAdmin();
     }
 
     /**
      * @description Manages teacher profiles. Publicly readable by anyone, but
      *   only administrators can create, update, or delete teacher profiles.
      * @path /teachers/{teacherId}
-     * @allow (list) Any user, signed in or not, can list all teachers.
-     * @deny (delete) A signed-in user without an admin role cannot delete a teacher profile.
-     * @principle Public read with role-based write access.
      */
     match /teachers/{teacherId} {
       allow get, list: if true;
-      allow create, update, delete: if isAdmin();
+      allow write: if isAdmin();
     }
     
     /**
-     * @description Manages student profiles. Publicly readable by anyone, but
-     *   only administrators can create, update, or delete student profiles.
+     * @description Manages student profiles. Admins can manage all student data.
+     *   Authenticated users can read the list of students.
      * @path /students/{studentId}
-     * @allow (list) Any user, signed in or not, can list all students.
-     * @deny (create) A signed-in user without an admin role cannot create a student profile.
-     * @principle Public read with role-based write access.
      */
     match /students/{studentId} {
-      allow get, list: if true;
-      allow create, update, delete: if isAdmin();
+      allow get, list: if isSignedIn();
+      allow write: if isAdmin();
 
       /**
-       * @description Manages attendance records for a specific student.
-       *   A student can only read their own attendance records. Only administrators
-       *   can create, update, or delete attendance records.
+       * @description Manages attendance for a specific student. Only admins can manage attendance.
+       *   The student who owns the record can view it.
        * @path /students/{studentId}/attendances/{attendanceId}
-       * @allow (get) A student with auth.uid matching {studentId} can read an attendance record.
-       * @deny (get) A student cannot read another student's attendance records.
-       * @deny (create) A student cannot create their own attendance record.
-       * @principle Enforces document ownership for reads and role-based access for writes.
        */
       match /attendances/{attendanceId} {
         allow get, list: if isOwner(studentId) || isAdmin();
-        allow create: if isAdmin() && request.resource.data.studentId == studentId;
-        allow update: if isAdmin() && resource != null && request.resource.data.studentId == resource.data.studentId;
-        allow delete: if isAdmin() && resource != null;
+        allow write: if isAdmin();
       }
     }
     
     /**
      * @description Manages class information. Publicly readable by anyone, but
-     *   only administrators can create, update, or delete class information.
+     *   only administrators can write data.
      * @path /classes/{classId}
-     * @allow (get) Any user, signed in or not, can read class information.
-     * @deny (update) A signed-in user without an admin role cannot update class information.
-     * @principle Public read with role-based write access.
      */
     match /classes/{classId} {
       allow get, list: if true;
-      allow create, update, delete: if isAdmin();
+      allow write: if isAdmin();
+    }
+    
+    /**
+     * @description Manages student applications. Anyone can create (submit) an application.
+     *  Only admins can read, update, or delete them. This enables a global admin view.
+     * @path /applications/{applicationId}
+     */
+    match /applications/{applicationId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
     }
 
     //----------------------------------------------------------------------
@@ -215,38 +191,16 @@ service cloud.firestore {
 
     /**
      * @description Manages user profile data and roles. A user can create their own
-     *   profile and read it. Only admins can modify user profiles, particularly the 'role' field.
+     *   profile and read it. Only admins can modify other user profiles.
      *   Listing all users is forbidden for privacy.
      * @path /users/{userId}
-     * @allow (create) A new user with auth.uid 'user_abc' can create their document at /users/user_abc.
-     * @allow (get) A user can read their own profile at /users/{their-own-uid}.
-     * @deny (list) No user, including admins, can query the entire /users collection.
-     * @deny (update) A regular user cannot change their own role.
-     * @principle Enforces document ownership and protects against user enumeration.
      */
     match /users/{userId} {
       allow get: if isOwner(userId) || isAdmin();
-      allow list: if false;
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      // An admin can update any user. A user can update their own profile, but cannot change their role.
-      allow update: if (isAdmin() && resource != null) || (isExistingOwner(userId) && request.resource.data.role == resource.data.role);
-      allow delete: if isAdmin() && resource != null;
-
-      /**
-       * @description Manages student applications submitted by a user. A user can
-       *   create, read, and list their own applications. Admins can manage all applications.
-       * @path /users/{userId}/applications/{applicationId}
-       * @allow (create) User 'user_abc' can create a new application at /users/user_abc/applications/{appId}.
-       * @deny (get) User 'user_abc' cannot read an application at /users/user_xyz/applications/{appId}.
-       * @principle Restricts access to a user's own data tree, with admin oversight.
-       */
-      match /applications/{applicationId} {
-        allow get: if isOwner(userId) || isAdmin();
-        allow list: if isOwner(userId); // Admins should use a backend function to list all applications
-        allow create: if isOwner(userId);
-        allow update: if isExistingOwner(userId) || (isAdmin() && resource != null);
-        allow delete: if isExistingOwner(userId) || (isAdmin() && resource != null);
-      }
+      allow list: if false; // Prevent user enumeration
+      allow create: if isOwner(userId);
+      allow update: if (isAdmin()) || (isOwner(userId) && request.resource.data.role == resource.data.role); // User can't change their own role
+      allow delete: if isAdmin();
     }
   }
 }
