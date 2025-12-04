@@ -17,21 +17,51 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
-import { collection, query } from "firebase/firestore"
+import { useCollection, useFirestore, useMemoFirebase, useUser as useCurrentUser, updateDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase"
+import { collection, query, doc } from "firebase/firestore"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { MoreHorizontal } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { useToast } from "@/hooks/use-toast"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 
 export type User = {
   id: string;
   displayName: string;
   email: string;
   photoURL?: string | null;
-  role: 'Admin' | 'User';
+  role: 'Super Admin' | 'Admin' | 'User';
 }
+
+const userRoles: User['role'][] = ['Super Admin', 'Admin', 'User'];
 
 export default function AdminUsersPage() {
   const firestore = useFirestore()
+  const { user: currentUser } = useCurrentUser();
+  const { toast } = useToast()
   
   const usersQuery = useMemoFirebase(() => {
     if (!firestore) return null
@@ -52,6 +82,26 @@ export default function AdminUsersPage() {
     return 'U';
   }
 
+  const handleRoleChange = async (userId: string, newRole: User['role']) => {
+    if (!firestore) return;
+    const userDocRef = doc(firestore, 'users', userId);
+    updateDocumentNonBlocking(userDocRef, { role: newRole });
+    toast({
+        title: "Peran Diperbarui",
+        description: `Peran pengguna telah diubah menjadi ${newRole}.`
+    });
+  };
+
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!firestore) return;
+    const userDocRef = doc(firestore, 'users', userId);
+    deleteDocumentNonBlocking(userDocRef);
+    toast({
+        title: "Pengguna Dihapus",
+        description: `Pengguna ${userName} telah dihapus dari sistem.`
+    });
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -66,12 +116,13 @@ export default function AdminUsersPage() {
             <TableRow>
               <TableHead>Pengguna</TableHead>
               <TableHead>Peran</TableHead>
+              <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading && (
               <TableRow>
-                <TableCell colSpan={2} className="text-center">Memuat pengguna...</TableCell>
+                <TableCell colSpan={3} className="text-center">Memuat pengguna...</TableCell>
               </TableRow>
             )}
             {users && users.length > 0 ? users.map((user) => (
@@ -87,12 +138,56 @@ export default function AdminUsersPage() {
                     </div>
                 </TableCell>
                 <TableCell>
-                    <Badge variant={user.role === 'Admin' ? 'destructive' : 'secondary'}>{user.role || 'User'}</Badge>
+                    <Badge variant={user.role === 'Super Admin' ? 'destructive' : user.role === 'Admin' ? 'secondary' : 'outline'}>{user.role || 'User'}</Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                   <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" disabled={user.id === currentUser?.uid}>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger>Ubah Peran</DropdownMenuSubTrigger>
+                        <DropdownMenuSubContent>
+                           {userRoles.map(role => (
+                            <DropdownMenuItem 
+                                key={role} 
+                                onSelect={() => handleRoleChange(user.id, role)}
+                                disabled={role === user.role}
+                            >
+                                {role}
+                            </DropdownMenuItem>
+                           ))}
+                        </DropdownMenuSubContent>
+                      </DropdownMenuSub>
+                      <DropdownMenuSeparator />
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600">Hapus</DropdownMenuItem>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                              <AlertDialogHeader>
+                                  <AlertDialogTitle>Anda yakin ingin menghapus?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                      Tindakan ini tidak dapat diurungkan. Pengguna <span className="font-semibold">{user.displayName || user.email}</span> akan dihapus secara permanen.
+                                  </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeleteUser(user.id, user.displayName || user.email)}>Lanjutkan</AlertDialogAction>
+                              </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
               </TableRow>
             )) : !isLoading && (
               <TableRow>
-                <TableCell colSpan={2} className="text-center">Tidak ada pengguna ditemukan.</TableCell>
+                <TableCell colSpan={3} className="text-center">Tidak ada pengguna ditemukan.</TableCell>
               </TableRow>
             )}
           </TableBody>

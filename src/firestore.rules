@@ -88,15 +88,24 @@ service cloud.firestore {
       // A user can update their own displayName and photoURL.
       // An Admin can update any user's displayName and photoURL.
       // A Super Admin can update any user's displayName, photoURL, and role.
-      // No one can change their own role.
-      allow update: if (isSignedIn() && request.auth.uid == userId && !('role' in request.resource.data.keys())) ||
-                      (isAdmin() && !isSuperAdmin() && !('role' in request.resource.data.keys())) ||
-                      isSuperAdmin();
+      // No one can change their own role unless they are a Super Admin.
+      allow update: if isSignedIn() && 
+                      (
+                        // Case 1: Super Admin can update anything on any user
+                        isSuperAdmin() ||
+                        // Case 2: Any user can update their own non-role fields
+                        (request.auth.uid == userId && !('role' in request.resource.data.keys())) ||
+                        // Case 3: An admin can update other users' non-role fields
+                        (isAdmin() && request.auth.uid != userId && !('role' in request.resource.data.keys()))
+                      );
       
-      // Only admins can delete users, but not themselves or other admins/superadmins unless they are superadmin.
-      allow delete: if isAdmin() && 
-                       request.auth.uid != userId && 
-                       (isSuperAdmin() || getUserData(userId).role == 'User');
+      // Only Super Admins can delete any user (except themselves).
+      // Admins can delete users with the 'User' role, but not other Admins or Super Admins.
+      allow delete: if isSignedIn() && request.auth.uid != userId && 
+                      (
+                        isSuperAdmin() ||
+                        (isAdmin() && getUserData(userId).role == 'User')
+                      );
     }
 
     //----------------------------------------------------------------------
