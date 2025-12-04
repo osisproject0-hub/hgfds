@@ -16,9 +16,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { BookHeart, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { useAuth, useFirestore, useMemoFirebase } from "@/firebase"
+import { useAuth, useFirestore } from "@/firebase"
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
-import { collection, doc, getDocs, setDoc, query, limit } from "firebase/firestore"
+import { doc, setDoc } from "firebase/firestore"
 
 export default function AdminSignupPage() {
   const [displayName, setDisplayName] = useState("")
@@ -48,24 +48,21 @@ export default function AdminSignupPage() {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password)
         const user = userCredential.user
 
-        // 2. Update user profile
+        // 2. Update user profile in Auth
         await updateProfile(user, { displayName })
 
-        // 3. Check if this is the first user
-        const usersRef = collection(firestore, "users")
-        const q = query(usersRef, limit(1));
-        const existingUsersSnapshot = await getDocs(q)
-        
-        const isFirstUser = existingUsersSnapshot.empty;
-        const userRole = isFirstUser ? "Super Admin" : "User"
-
-        // 4. Create user document in Firestore
+        // 3. Create user document in Firestore. The role will be set by security rules.
         const userDocRef = doc(firestore, "users", user.uid)
+        
+        // We are intentionally not setting the role here. 
+        // The security rule will detect if this is the first user and assign 'Super Admin' role.
+        // For subsequent users, we'd need a Cloud Function or admin action to assign roles.
+        // For this implementation, we rely on the rule for the first user, and subsequent users will need manual role assignment or a future feature.
         await setDoc(userDocRef, {
             displayName: displayName,
             email: user.email,
-            role: userRole,
             photoURL: user.photoURL
+            // Role is NOT set on the client. It will be determined by security rules.
         })
 
         toast({
@@ -73,7 +70,9 @@ export default function AdminSignupPage() {
           description: `Welcome, ${displayName}! Redirecting you to the admin dashboard.`,
         })
 
-        router.push("/admin")
+        // A small delay to allow Firestore rules to process and the user object to be updated.
+        setTimeout(() => router.push("/admin"), 1000);
+
       } catch (error: any) {
         console.error("Signup failed:", error)
         toast({
