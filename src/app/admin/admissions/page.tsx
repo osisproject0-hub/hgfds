@@ -122,10 +122,10 @@ export default function AdminAdmissionsPage() {
     toast({ title: "Status Diperbarui", description: "Status pendaftaran telah berhasil diubah." })
   }
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (!firestore) return;
     const appRef = doc(firestore, "applications", id);
-    await deleteDocumentNonBlocking(appRef)
+    deleteDocumentNonBlocking(appRef)
     toast({ title: "Pendaftaran Dihapus", description: "Pendaftaran telah berhasil dihapus." })
     setIsDeleteAlertOpen(false)
     setApplicationToDelete(null)

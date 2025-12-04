@@ -11,7 +11,7 @@ import {
   CommandSeparator,
 } from '@/components/ui/command';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query } from 'firebase/firestore';
+import { collection } from 'firebase/firestore';
 import { type User } from '@/app/admin/users/page';
 import { type NewsArticle } from '@/app/admin/content/news/page';
 import { type Program } from '@/app/admin/content/programs/page';
@@ -36,10 +36,10 @@ export default function AdminSearch() {
   const firestore = useFirestore();
   const { toast } = useToast();
 
-  const usersQuery = useMemoFirebase(() => firestore ? query(collection(firestore, 'users')) : null, [firestore]);
-  const newsQuery = useMemoFirebase(() => firestore ? query(collection(firestore, 'newsArticles')) : null, [firestore]);
-  const programsQuery = useMemoFirebase(() => firestore ? query(collection(firestore, 'vocationalPrograms')) : null, [firestore]);
-  const applicationsQuery = useMemoFirebase(() => firestore ? query(collection(firestore, 'applications')) : null, [firestore]);
+  const usersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'users') : null, [firestore]);
+  const newsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'newsArticles') : null, [firestore]);
+  const programsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'vocationalPrograms') : null, [firestore]);
+  const applicationsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'applications') : null, [firestore]);
 
   const { data: users } = useCollection<User>(usersQuery);
   const { data: news } = useCollection<NewsArticle>(newsQuery);
