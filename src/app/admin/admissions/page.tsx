@@ -49,6 +49,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const statusVariant = {
     pending: "default",
@@ -142,6 +143,59 @@ export default function AdminAdmissionsPage() {
 
   const isLoading = isLoadingApps || isLoadingPrograms;
 
+  const TableContent = () => {
+    if (isLoading) {
+      return (
+        <TableRow>
+          <TableCell colSpan={5} className="text-center">Memuat pendaftaran...</TableCell>
+        </TableRow>
+      )
+    }
+    if (applications && applications.length > 0) {
+      return applications.map((app) => (
+        <TableRow key={app.id}>
+          <TableCell className="font-medium">{app.firstName} {app.lastName}</TableCell>
+          <TableCell>{programMap.get(app.programId) || app.programId}</TableCell>
+          <TableCell>
+            <Badge variant={statusVariant[app.status] ?? 'default'} className="capitalize">{statusLabels[app.status]}</Badge>
+          </TableCell>
+          <TableCell>{app.applicationDate ? format(new Date(app.applicationDate.seconds * 1000), "yyyy-MM-dd") : 'N/A'}</TableCell>
+          <TableCell>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button aria-haspopup="true" size="icon" variant="ghost">
+                  <MoreHorizontal className="h-4 w-4" />
+                  <span className="sr-only">Buka menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                  <DropdownMenuItem onSelect={() => openDetailView(app)}>
+                    Lihat Detail
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel>Ubah Status</DropdownMenuLabel>
+                {Object.keys(statusVariant).map((status) => (
+                  <DropdownMenuItem key={status} onSelect={() => handleStatusChange(app.id, status as ApplicationStatus)}>
+                    Tandai sebagai {statusLabels[status as ApplicationStatus]}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => openDeleteConfirmation(app)} className="text-red-600">
+                    Hapus
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </TableCell>
+        </TableRow>
+      ))
+    }
+    return (
+      <TableRow>
+        <TableCell colSpan={5} className="text-center">Tidak ada pendaftaran ditemukan.</TableCell>
+      </TableRow>
+    )
+  }
+
   return (
     <>
     <Card>
@@ -165,51 +219,7 @@ export default function AdminAdmissionsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading && (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center">Memuat pendaftaran...</TableCell>
-              </TableRow>
-            )}
-            {applications && applications.length > 0 ? applications.map((app) => (
-              <TableRow key={app.id}>
-                <TableCell className="font-medium">{app.firstName} {app.lastName}</TableCell>
-                <TableCell>{programMap.get(app.programId) || app.programId}</TableCell>
-                <TableCell>
-                  <Badge variant={statusVariant[app.status] ?? 'default'} className="capitalize">{statusLabels[app.status]}</Badge>
-                </TableCell>
-                <TableCell>{app.applicationDate ? format(new Date(app.applicationDate.seconds * 1000), "yyyy-MM-dd") : 'N/A'}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button aria-haspopup="true" size="icon" variant="ghost">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Buka menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                       <DropdownMenuItem onSelect={() => openDetailView(app)}>
-                          Lihat Detail
-                        </DropdownMenuItem>
-                       <DropdownMenuSeparator />
-                       <DropdownMenuLabel>Ubah Status</DropdownMenuLabel>
-                      {Object.keys(statusVariant).map((status) => (
-                        <DropdownMenuItem key={status} onSelect={() => handleStatusChange(app.id, status as ApplicationStatus)}>
-                          Tandai sebagai {statusLabels[status as ApplicationStatus]}
-                        </DropdownMenuItem>
-                      ))}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onSelect={() => openDeleteConfirmation(app)} className="text-red-600">
-                          Hapus
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            )) : !isLoading && (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center">Tidak ada pendaftaran ditemukan.</TableCell>
-              </TableRow>
-            )}
+            <TableContent />
           </TableBody>
         </Table>
       </CardContent>
@@ -273,5 +283,3 @@ export default function AdminAdmissionsPage() {
     </>
   )
 }
-
-    

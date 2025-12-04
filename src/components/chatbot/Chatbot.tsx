@@ -141,7 +141,6 @@ export default function Chatbot() {
                 <SendHorizonal className="h-5 w-5" />
                 <span className="sr-only">Kirim</span>
               </Button>
-            </form>
              <p className="text-xs text-muted-foreground text-center mt-2">
               AI kami dapat membuat kesalahan. Harap verifikasi informasi penting.
             </p>
