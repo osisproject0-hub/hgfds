@@ -6,6 +6,7 @@ import {
   Users2,
   Settings,
   Mail,
+  Image,
 } from 'lucide-react';
 
 export const adminNavLinks = [
@@ -16,3 +17,5 @@ export const adminNavLinks = [
   { href: '/admin/users', label: 'Users', icon: Users2 },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
+
+    

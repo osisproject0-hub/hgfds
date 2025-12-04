@@ -1,36 +1,4 @@
 
-/**
- * Core Philosophy: This ruleset secures a school management and information website.
- * It provides public read-only access to general school information like programs,
- * news, and events, while strictly controlling all write operations, which are
- * reserved for administrative users. User-specific data, such as applications,
- * is protected under a strict ownership model.
- *
- * Data Structure: The data is organized into top-level collections for public
- * information (e.g., /newsArticles, /events) and a /users collection for managing
- * accounts and roles. Sensitive, user-specific data is nested within user-owned
- * paths (e.g., /users/{userId}/applications/{applicationId}) to leverage path-based security.
- *
- * Key Security Decisions:
- * - Public Read, Admin Write: All top-level informational collections are publicly readable
- *   but can only be modified by users with an 'Admin' or 'Super Admin' role.
- * - Role-Based Access Control (RBAC): A user's role is stored in their /users/{userId}
- *   document and is the primary mechanism for granting administrative privileges.
- * - Strict Ownership: Users have full control over documents nested directly under
- *   their own user ID, such as their applications. They cannot access data belonging to other users.
- * - User Privacy: Listing the entire /users collection is explicitly disallowed to
- *   prevent enumeration of all platform users.
- *
- * Denormalization for Authorization: The rules rely on a denormalized 'role' field within
- * each document in the /users collection. This allows for a single `get()` call within a
- * helper function (`isAdmin()`) to efficiently check for administrative privileges without
- * needing to query other collections.
- *
- * Structural Segregation: Public data (like `/vocationalPrograms`) and private user data
- * (like `/users/{userId}/applications`) are stored in separate collections. This separation
- * simplifies security rules, enhances query performance, and prevents accidental data leakage,
- * especially in `list` operations.
- */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -56,20 +24,12 @@ service cloud.firestore {
     }
 
     /**
-     * Checks if a document exists before an update or delete operation.
-     * Crucially, also verifies that the requesting user is the owner.
-     * @param userId The user ID to check against the authenticated user.
-     */
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
-    }
-
-    /**
      * Checks if the authenticated user has an 'Admin' or 'Super Admin' role.
      * This function performs a read on the user's own document to fetch their role.
      */
     function isAdmin() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['Admin', 'Super Admin'];
+      let userRole = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+      return isSignedIn() && (userRole == 'Admin' || userRole == 'Super Admin');
     }
 
     //----------------------------------------------------------------------
@@ -117,66 +77,6 @@ service cloud.firestore {
     }
 
     /**
-     * @description Manages testimonials. Publicly readable by anyone, but
-     *   only administrators can create, update, or delete testimonials.
-     * @path /testimonials/{testimonialId}
-     */
-    match /testimonials/{testimonialId} {
-      allow get, list: if true;
-      allow write: if isAdmin();
-    }
-    
-    /**
-     * @description Manages school subjects. Publicly readable by anyone, but
-     *   only administrators can create, update, or delete subjects.
-     * @path /subjects/{subjectId}
-     */
-    match /subjects/{subjectId} {
-      allow get, list: if true;
-      allow write: if isAdmin();
-    }
-
-    /**
-     * @description Manages teacher profiles. Publicly readable by anyone, but
-     *   only administrators can create, update, or delete teacher profiles.
-     * @path /teachers/{teacherId}
-     */
-    match /teachers/{teacherId} {
-      allow get, list: if true;
-      allow write: if isAdmin();
-    }
-    
-    /**
-     * @description Manages student profiles. Admins can manage all student data.
-     *   Authenticated users can read the list of students.
-     * @path /students/{studentId}
-     */
-    match /students/{studentId} {
-      allow get, list: if isSignedIn();
-      allow write: if isAdmin();
-
-      /**
-       * @description Manages attendance for a specific student. Only admins can manage attendance.
-       *   The student who owns the record can view it.
-       * @path /students/{studentId}/attendances/{attendanceId}
-       */
-      match /attendances/{attendanceId} {
-        allow get, list: if isOwner(studentId) || isAdmin();
-        allow write: if isAdmin();
-      }
-    }
-    
-    /**
-     * @description Manages class information. Publicly readable by anyone, but
-     *   only administrators can write data.
-     * @path /classes/{classId}
-     */
-    match /classes/{classId} {
-      allow get, list: if true;
-      allow write: if isAdmin();
-    }
-    
-    /**
      * @description Manages student applications. Anyone can create (submit) an application.
      *  Only admins can read, update, or delete them. This enables a global admin view.
      * @path /applications/{applicationId}
@@ -202,17 +102,16 @@ service cloud.firestore {
     //----------------------------------------------------------------------
 
     /**
-     * @description Manages user profile data and roles. A user can create their own
-     *   profile and read it. Only admins can modify other user profiles.
-     *   Listing all users is forbidden for privacy.
+     * @description Manages user profile data and roles. A user can read their own
+     *   profile. Only admins can list, create, update or delete user profiles.
+     *   Listing all users is restricted to admins for privacy.
      * @path /users/{userId}
      */
     match /users/{userId} {
       allow get: if isOwner(userId) || isAdmin();
-      allow list: if false; // Prevent user enumeration
-      allow create: if isOwner(userId);
-      allow update: if (isAdmin()) || (isOwner(userId) && request.resource.data.role == resource.data.role); // User can't change their own role
-      allow delete: if isAdmin();
+      allow list, create, update, delete: if isAdmin();
     }
   }
 }
+
+    

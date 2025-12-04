@@ -164,40 +164,6 @@
         "description"
       ]
     },
-    "Testimonial": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Testimonial",
-      "type": "object",
-      "description": "Represents a testimonial from a student, alumni, or parent.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the testimonial."
-        },
-        "author": {
-          "type": "string",
-          "description": "Name of the person providing the testimonial."
-        },
-        "content": {
-          "type": "string",
-          "description": "Text of the testimonial."
-        },
-        "imageUrl": {
-          "type": "string",
-          "description": "URL of an image of the person providing the testimonial.",
-          "format": "uri"
-        },
-        "authorType": {
-          "type": "string",
-          "description": "Type of the author (e.g., student, alumni, parent)."
-        }
-      },
-      "required": [
-        "id",
-        "author",
-        "content"
-      ]
-    },
     "Application": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Application",
@@ -250,208 +216,17 @@
         "status"
       ]
     },
-    "User": {
+    "UserProfile": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "User",
+      "title": "UserProfile",
       "type": "object",
-      "description": "Represents a user of the admin panel.",
+      "description": "Represents a user's profile information.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the user."
-        },
-        "username": {
-          "type": "string",
-          "description": "Username for the user."
-        },
-        "role": {
-          "type": "string",
-          "description": "Role of the user (e.g., Super Admin, Admin, Teacher, Student)."
-        },
-        "email": {
-          "type": "string",
-          "description": "Email address of the user.",
-          "format": "email"
-        }
+          "email": { "type": "string", "format": "email" },
+          "displayName": { "type": "string" },
+          "role": { "type": "string", "enum": ["Super Admin", "Admin", "User"] }
       },
-      "required": [
-        "id",
-        "username",
-        "role",
-        "email"
-      ]
-    },
-    "Subject": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Subject",
-      "type": "object",
-      "description": "Represents a subject taught in the school.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the subject."
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the subject."
-        },
-        "description": {
-          "type": "string",
-          "description": "Description of the subject."
-        },
-        "programIds": {
-          "type": "array",
-          "description": "References to VocationalPrograms. (Relationship: VocationalProgram N:N Subject)",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "description"
-      ]
-    },
-    "Teacher": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Teacher",
-      "type": "object",
-      "description": "Represents a teacher in the school.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the teacher."
-        },
-        "firstName": {
-          "type": "string",
-          "description": "First name of the teacher."
-        },
-        "lastName": {
-          "type": "string",
-          "description": "Last name of the teacher."
-        },
-        "email": {
-          "type": "string",
-          "description": "Email address of the teacher.",
-          "format": "email"
-        },
-        "subjectIds": {
-          "type": "array",
-          "description": "References to Subjects. (Relationship: Teacher N:N Subject)",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "required": [
-        "id",
-        "firstName",
-        "lastName",
-        "email"
-      ]
-    },
-    "Student": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Student",
-      "type": "object",
-      "description": "Represents a student in the school.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the student."
-        },
-        "firstName": {
-          "type": "string",
-          "description": "First name of the student."
-        },
-        "lastName": {
-          "type": "string",
-          "description": "Last name of the student."
-        },
-        "email": {
-          "type": "string",
-          "description": "Email address of the student.",
-          "format": "email"
-        },
-        "programId": {
-          "type": "string",
-          "description": "Reference to VocationalProgram. (Relationship: VocationalProgram 1:N Student)"
-        }
-      },
-      "required": [
-        "id",
-        "firstName",
-        "lastName",
-        "email",
-        "programId"
-      ]
-    },
-    "Class": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Class",
-      "type": "object",
-      "description": "Represents a class or course.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the class."
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the class (e.g., 10A, 11B)."
-        },
-        "teacherId": {
-          "type": "string",
-          "description": "Reference to Teacher. (Relationship: Teacher 1:N Class)"
-        },
-        "subjectId": {
-          "type": "string",
-          "description": "Reference to Subject. (Relationship: Subject 1:N Class)"
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "teacherId",
-        "subjectId"
-      ]
-    },
-    "Attendance": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Attendance",
-      "type": "object",
-      "description": "Represents a student's attendance record for a specific class.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the attendance record."
-        },
-        "studentId": {
-          "type": "string",
-          "description": "Reference to Student. (Relationship: Student 1:N Attendance)"
-        },
-        "classId": {
-          "type": "string",
-          "description": "Reference to Class. (Relationship: Class 1:N Attendance)"
-        },
-        "date": {
-          "type": "string",
-          "description": "Date of the attendance record.",
-          "format": "date-time"
-        },
-        "isPresent": {
-          "type": "boolean",
-          "description": "Indicates whether the student was present (true) or absent (false)."
-        }
-      },
-      "required": [
-        "id",
-        "studentId",
-        "classId",
-        "date",
-        "isPresent"
-      ]
+      "required": ["email", "role"]
     },
     "ContactMessage": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -544,23 +319,13 @@
         }
       },
       {
-        "path": "/testimonials/{testimonialId}",
-        "definition": {
-          "entityName": "Testimonial",
-          "schema": {
-            "$ref": "#/backend/entities/Testimonial"
-          },
-          "description": "Stores testimonials from students, alumni, or parents."
-        }
-      },
-      {
         "path": "/users/{userId}",
         "definition": {
-          "entityName": "User",
+          "entityName": "UserProfile",
           "schema": {
-            "$ref": "#/backend/entities/User"
+            "$ref": "#/backend/entities/UserProfile"
           },
-          "description": "Stores user information for admin panel users. The 'role' field is used for authorization."
+          "description": "Stores user profile information for all users, including admins. The 'role' field is used for authorization."
         }
       },
       {
@@ -571,56 +336,6 @@
             "$ref": "#/backend/entities/Application"
           },
           "description": "Stores student applications in a single collection for easier admin querying."
-        }
-      },
-      {
-        "path": "/subjects/{subjectId}",
-        "definition": {
-          "entityName": "Subject",
-          "schema": {
-            "$ref": "#/backend/entities/Subject"
-          },
-          "description": "Stores information about subjects taught in the school."
-        }
-      },
-      {
-        "path": "/teachers/{teacherId}",
-        "definition": {
-          "entityName": "Teacher",
-          "schema": {
-            "$ref": "#/backend/entities/Teacher"
-          },
-          "description": "Stores information about teachers in the school."
-        }
-      },
-      {
-        "path": "/students/{studentId}",
-        "definition": {
-          "entityName": "Student",
-          "schema": {
-            "$ref": "#/backend/entities/Student"
-          },
-          "description": "Stores information about students in the school."
-        }
-      },
-      {
-        "path": "/classes/{classId}",
-        "definition": {
-          "entityName": "Class",
-          "schema": {
-            "$ref": "#/backend/entities/Class"
-          },
-          "description": "Stores information about classes or courses."
-        }
-      },
-      {
-        "path": "/students/{studentId}/attendances/{attendanceId}",
-        "definition": {
-          "entityName": "Attendance",
-          "schema": {
-            "$ref": "#/backend/entities/Attendance"
-          },
-          "description": "Stores attendance records for students. Path-based ownership under student ID."
         }
       },
       {
@@ -637,3 +352,5 @@
     "reasoning": "The Firestore data structure has been updated to place the 'applications' collection at the root level. This change significantly simplifies querying for administrators, who now need to list all applications regardless of the user who submitted them. The previous nested structure (`/users/{userId}/applications/{applicationId}`) was ideal for user-specific queries but cumbersome for admin-level data aggregation. By moving it to `/applications/{applicationId}`, we enable straightforward `list` operations for the admin panel while still being able to secure it so that only admins can read all applications and users can only read their own (if needed, through rules). All other collections remain as they were, following principles of structural segregation and role-based access control via the 'role' field in the '/users/{userId}' documents. A new root collection 'contactMessages' has been added to store submissions from the contact form for admin review."
   }
 }
+
+    
