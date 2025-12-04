@@ -11,6 +11,10 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import type { SiteSettings } from '@/app/admin/settings/page';
+import { Skeleton } from '../ui/skeleton';
 
 const navLinks = [
   { href: '/', label: 'Beranda' },
@@ -24,6 +28,11 @@ const navLinks = [
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const firestore = useFirestore();
+  const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore]);
+  const { data: settings, isLoading } = useDoc<SiteSettings>(settingsDocRef);
+  const schoolName = settings?.schoolName || "SMK LPPMRI 2";
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -43,9 +52,12 @@ export default function Header() {
       <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2" prefetch={false}>
           <BookHeart className="h-8 w-8 text-primary" />
-          <span className="text-xl font-bold font-headline text-foreground">
-            SMK LPPMRI 2
-          </span>
+          {isLoading ? 
+            <Skeleton className="h-6 w-32" /> :
+            <span className="text-xl font-bold font-headline text-foreground">
+                {schoolName}
+            </span>
+          }
         </Link>
         <nav className="hidden md:flex items-center gap-6">
           {navLinks.map((link) => (
@@ -77,7 +89,7 @@ export default function Header() {
                 <Link href="/" className="flex items-center gap-2" prefetch={false}>
                   <BookHeart className="h-8 w-8 text-primary" />
                   <span className="text-xl font-bold font-headline text-foreground">
-                    SMK LPPMRI 2
+                    {schoolName}
                   </span>
                 </Link>
                 <nav className="flex flex-col gap-4">
@@ -103,3 +115,5 @@ export default function Header() {
     </header>
   );
 }
+
+    

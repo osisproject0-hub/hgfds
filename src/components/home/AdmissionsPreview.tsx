@@ -22,7 +22,7 @@ const steps = [
 
 export default function AdmissionsPreview() {
   return (
-    <section className="py-16 lg:py-24 bg-secondary">
+    <section className="py-16 lg:py-24 bg-background">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">Bergabung dengan Komunitas Kami</h2>
@@ -52,3 +52,5 @@ export default function AdmissionsPreview() {
     </section>
   );
 }
+
+    

@@ -298,6 +298,39 @@
               "answer": { "type": "string" }
             }
           }
+        },
+        "heroHeadline": {
+            "type": "string",
+            "description": "The main headline for the hero section on the homepage."
+        },
+        "heroSubheadline": {
+            "type": "string",
+            "description": "The subheadline for the hero section on the homepage."
+        },
+        "aboutPreview": {
+            "type": "string",
+            "description": "A short preview text about the school for the homepage."
+        },
+        "statsStudents": {
+            "type": "number",
+            "description": "Total number of students."
+        },
+        "statsTeachers": {
+            "type": "number",
+            "description": "Total number of teachers."
+        },
+        "statsGraduationRate": {
+            "type": "number",
+            "description": "Graduation rate percentage."
+        },
+        "announcementText": {
+            "type": "string",
+            "description": "The text for the announcement banner."
+        },
+        "announcementLink": {
+            "type": "string",
+            "description": "The URL for the announcement banner link.",
+            "format": "uri"
         }
       },
       "required": [

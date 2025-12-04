@@ -37,6 +37,14 @@ const formSchema = z.object({
       question: z.string().min(1, "Pertanyaan tidak boleh kosong."),
       answer: z.string().min(1, "Jawaban tidak boleh kosong."),
   })),
+  heroHeadline: z.string().min(10, { message: "Judul hero harus memiliki setidaknya 10 karakter." }),
+  heroSubheadline: z.string().min(20, { message: "Sub-judul hero harus memiliki setidaknya 20 karakter." }),
+  aboutPreview: z.string().min(20, { message: "Teks pratinjau harus memiliki setidaknya 20 karakter." }),
+  statsStudents: z.coerce.number().min(0, "Jumlah siswa tidak boleh negatif."),
+  statsTeachers: z.coerce.number().min(0, "Jumlah guru tidak boleh negatif."),
+  statsGraduationRate: z.coerce.number().min(0).max(100, "Tingkat kelulusan harus antara 0 dan 100."),
+  announcementText: z.string().optional(),
+  announcementLink: z.string().url({ message: "URL tidak valid." }).optional().or(z.literal('')),
 })
 
 export type SiteSettings = z.infer<typeof formSchema>;
@@ -64,6 +72,14 @@ export default function AdminSettingsPage() {
       missionPoints: [],
       admissionRequirements: [],
       admissionFaqs: [],
+      heroHeadline: "",
+      heroSubheadline: "",
+      aboutPreview: "",
+      statsStudents: 0,
+      statsTeachers: 0,
+      statsGraduationRate: 0,
+      announcementText: "",
+      announcementLink: "",
     }
   })
 
@@ -121,8 +137,9 @@ export default function AdminSettingsPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                <Tabs defaultValue="general">
-                  <TabsList className="mb-6">
+                  <TabsList className="grid w-full grid-cols-4 mb-6">
                     <TabsTrigger value="general">Umum</TabsTrigger>
+                    <TabsTrigger value="homepage">Halaman Depan</TabsTrigger>
                     <TabsTrigger value="about">Tentang Kami</TabsTrigger>
                     <TabsTrigger value="admissions">Penerimaan</TabsTrigger>
                   </TabsList>
@@ -179,7 +196,116 @@ export default function AdminSettingsPage() {
                           </FormItem>
                         )}
                       />
+                      <FormField
+                        control={form.control}
+                        name="announcementText"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Teks Pengumuman</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Teks untuk banner pengumuman" {...field} disabled={isPending} />
+                            </FormControl>
+                             <FormDescription>Teks yang ditampilkan di banner atas. Kosongkan untuk menyembunyikan.</FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                       <FormField
+                        control={form.control}
+                        name="announcementLink"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tautan Pengumuman</FormLabel>
+                            <FormControl>
+                              <Input placeholder="https://example.com/link" {...field} disabled={isPending} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                   </TabsContent>
+                   <TabsContent value="homepage" className="space-y-6 max-w-2xl">
+                       <FormField
+                        control={form.control}
+                        name="heroHeadline"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Judul Utama Hero</FormLabel>
+                            <FormControl>
+                              <Textarea placeholder="Judul utama di halaman depan" {...field} disabled={isPending} rows={2} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                       <FormField
+                        control={form.control}
+                        name="heroSubheadline"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Sub-Judul Hero</FormLabel>
+                            <FormControl>
+                              <Textarea placeholder="Sub-judul di halaman depan" {...field} disabled={isPending} rows={3} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="aboutPreview"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Pratinjau "Tentang Kami"</FormLabel>
+                            <FormControl>
+                              <Textarea placeholder="Teks singkat tentang sekolah untuk halaman depan" {...field} disabled={isPending} rows={4} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="grid grid-cols-3 gap-4">
+                        <FormField
+                            control={form.control}
+                            name="statsStudents"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Jumlah Siswa</FormLabel>
+                                <FormControl>
+                                <Input type="number" {...field} disabled={isPending} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="statsTeachers"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Jumlah Guru</FormLabel>
+                                <FormControl>
+                                <Input type="number" {...field} disabled={isPending} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="statsGraduationRate"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Tingkat Kelulusan (%)</FormLabel>
+                                <FormControl>
+                                <Input type="number" {...field} disabled={isPending} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                      </div>
+                   </TabsContent>
                   <TabsContent value="about" className="space-y-6 max-w-2xl">
                      <FormField
                         control={form.control}

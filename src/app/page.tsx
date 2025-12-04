@@ -13,12 +13,14 @@ export default function Home() {
     <PublicLayout>
         <Announcements />
         <Hero />
-        <FeaturedPrograms />
         <AboutPreview />
         <Stats />
+        <FeaturedPrograms />
         <AdmissionsPreview />
         <Testimonials />
         <NewsAndEvents />
     </PublicLayout>
   );
 }
+
+    

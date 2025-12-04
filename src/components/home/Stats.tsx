@@ -5,8 +5,10 @@ import { useEffect, useState, useRef } from 'react';
 import { useMounted } from '@/hooks/use-mounted';
 import { cn } from '@/lib/utils';
 import { GraduationCap, Users, Award, BookOpen } from 'lucide-react';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query } from 'firebase/firestore';
+import { useCollection, useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, query, doc } from 'firebase/firestore';
+import type { SiteSettings } from '@/app/admin/settings/page';
+import { Skeleton } from '../ui/skeleton';
 
 const Counter = ({ to }: { to: number }) => {
   const [count, setCount] = useState(0);
@@ -69,10 +71,14 @@ export default function Stats() {
   const programsQuery = useMemoFirebase(() => firestore ? query(collection(firestore, 'vocationalPrograms')) : null, [firestore]);
   const { data: programs } = useCollection(programsQuery);
 
+  const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore]);
+  const { data: settings, isLoading } = useDoc<SiteSettings>(settingsDocRef);
+
+
   const schoolStats = [
-    { value: 1200, label: 'Siswa', icon: GraduationCap },
-    { value: 50, label: 'Guru Ahli', icon: Users },
-    { value: 95, label: 'Tingkat Kelulusan (%)', icon: Award },
+    { value: settings?.statsStudents ?? 1200, label: 'Siswa', icon: GraduationCap },
+    { value: settings?.statsTeachers ?? 50, label: 'Guru Ahli', icon: Users },
+    { value: settings?.statsGraduationRate ?? 95, label: 'Tingkat Kelulusan (%)', icon: Award },
     { value: programs?.length || 4, label: 'Program Kejuruan', icon: BookOpen },
   ];
 
@@ -80,7 +86,15 @@ export default function Stats() {
     <div className="bg-primary text-primary-foreground py-16 lg:py-24">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid grid-cols-2 gap-8 text-center md:grid-cols-4">
-          {schoolStats.map((stat, index) => (
+          {isLoading ? 
+             Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex flex-col items-center gap-2">
+                    <Skeleton className="h-12 w-12 bg-primary-foreground/20" />
+                    <Skeleton className="h-10 w-24 bg-primary-foreground/20" />
+                    <Skeleton className="h-5 w-32 bg-primary-foreground/20" />
+                </div>
+             ))
+           : schoolStats.map((stat, index) => (
             <div key={stat.label} className={cn("flex flex-col items-center gap-2", {
                 "animate-fade-in": mounted
             })} style={{ animationDelay: `${index * 150}ms` }}>
@@ -96,3 +110,5 @@ export default function Stats() {
     </div>
   );
 }
+
+    
