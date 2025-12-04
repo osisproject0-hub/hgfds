@@ -11,23 +11,12 @@ service cloud.firestore {
       return request.auth != null;
     }
     
-    function getUserData(userId) {
-      return get(/databases/$(database)/documents/users/$(userId)).data;
-    }
-
-    function isSuperAdmin() {
-       if (!isSignedIn()) {
-        return false;
-      }
-      return getUserData(request.auth.uid).role == 'Super Admin';
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
     function isAdmin() {
-      if (!isSignedIn()) {
-        return false;
-      }
-      let userRole = getUserData(request.auth.uid).role;
-      return userRole == 'Admin' || userRole == 'Super Admin';
+      return isSignedIn() && getUserData().role == 'Admin';
     }
     
     //----------------------------------------------------------------------
@@ -46,7 +35,7 @@ service cloud.firestore {
     
     match /testimonials/{docId} {
         allow get, list: if true;
-        allow write: if isAdmin();
+        allow write: if false;
     }
 
     match /galleryAlbums/{docId} {
@@ -77,31 +66,23 @@ service cloud.firestore {
     //----------------------------------------------------------------------
 
     match /users/{userId} {
-      // Any authenticated user can get any user's data and list all users (for the admin panel)
-      allow get, list: if isSignedIn();
-      
-      // Allow user creation for anyone (signup).
+      // Anyone can create a user document during signup.
       allow create: if true;
-                      
-      // A user can update their own displayName and photoURL.
-      // An Admin can update any user's displayName and photoURL.
-      // A Super Admin can update any user's displayName, photoURL, and role.
-      // No one can change their own role.
-      allow update: if (request.auth.uid == userId && !('role' in request.resource.data.keys())) ||
-                      (isAdmin() && !isSuperAdmin() && !('role' in request.resource.data.keys())) ||
-                      isSuperAdmin();
-      
-      // Only admins can delete users, but not themselves or other admins/superadmins unless they are superadmin.
-      allow delete: if isAdmin() && 
-                       request.auth.uid != userId && 
-                       (isSuperAdmin() || getUserData(userId).role == 'User');
+      // Users can only read their own data. Admins can read anyone's data.
+      allow get: if request.auth.uid == userId || isAdmin();
+      // Only admins can list all users.
+      allow list: if isAdmin();
+      // Users can only update their own data. Admins can update anyone's data.
+      allow update: if request.auth.uid == userId || isAdmin();
+      // Only admins can delete users.
+      allow delete: if isAdmin();
     }
 
     //----------------------------------------------------------------------
     // Site-Wide Settings (Admin only)
     //----------------------------------------------------------------------
     match /siteSettings/main {
-      allow get, list: if true;
+      allow get: if true;
       allow write: if isAdmin();
     }
   }

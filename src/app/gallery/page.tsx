@@ -4,11 +4,10 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { useCollection, useFirestore, useMemoFirebase, useDoc } from "@/firebase"
-import { collection, query, doc } from "firebase/firestore"
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
+import { collection, query } from "firebase/firestore"
 import { Skeleton } from "@/components/ui/skeleton"
-import type { SiteSettings } from "@/app/admin/settings/page"
-import { ImageIcon, Images } from "lucide-react"
+import { Images } from "lucide-react"
 
 type GalleryAlbum = {
     id: string;
@@ -24,31 +23,17 @@ export default function GalleryPage() {
         return query(collection(firestore, "galleryAlbums"));
     }, [firestore]);
 
-    const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore]);
-    const { data: settings } = useDoc<SiteSettings>(settingsDocRef);
-
     const { data: albums, isLoading } = useCollection<GalleryAlbum>(albumsQuery);
-    
-    const heroImage = settings?.galleryHeroImageUrl || "https://picsum.photos/seed/gallery-hero/1200/400";
 
     return (
         <div className="bg-background text-foreground">
             {/* Hero Section */}
-            <section className="relative h-64 md:h-80 w-full flex items-center justify-center text-center text-white">
-                <Image
-                    src={heroImage}
-                    alt="Galeri Sekolah"
-                    fill
-                    className="object-cover"
-                    priority
-                    data-ai-hint="gallery montage"
-                />
-                <div className="absolute inset-0 bg-primary/60" />
-                <div className="relative z-10 p-4">
+            <section className="bg-primary text-primary-foreground">
+                <div className="container mx-auto px-4 md:px-6 py-12 text-center">
                     <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl font-headline">
                         Galeri Sekolah
                     </h1>
-                    <p className="mt-2 max-w-2xl mx-auto text-lg text-primary-foreground/90">
+                    <p className="mt-4 max-w-2xl mx-auto text-lg text-primary-foreground/90">
                         Lihat momen-momen, fasilitas, dan kegiatan di SMK LPPMRI 2 Kedungreja.
                     </p>
                 </div>
@@ -99,7 +84,6 @@ export default function GalleryPage() {
 
                  {!isLoading && albums?.length === 0 && (
                     <div className="text-center py-16 text-muted-foreground col-span-full">
-                         <ImageIcon className="h-12 w-12 mx-auto mb-4" />
                         <p>Belum ada album di galeri.</p>
                     </div>
                 )}

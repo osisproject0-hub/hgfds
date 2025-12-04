@@ -11,10 +11,8 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2, Mail, Phone, MapPin } from "lucide-react"
-import { useFirestore, addDocumentNonBlocking, useDoc, useMemoFirebase } from "@/firebase"
-import { collection, serverTimestamp, doc } from "firebase/firestore"
-import { Skeleton } from "@/components/ui/skeleton"
-import type { SiteSettings } from "@/app/admin/settings/page"
+import { useFirestore, addDocumentNonBlocking } from "@/firebase"
+import { collection, serverTimestamp } from "firebase/firestore"
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Nama harus memiliki setidaknya 2 karakter." }),
@@ -27,8 +25,6 @@ export default function ContactPage() {
   const [isPending, startTransition] = useTransition()
   const { toast } = useToast()
   const firestore = useFirestore()
-  const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore]);
-  const { data: settings, isLoading } = useDoc<SiteSettings>(settingsDocRef);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -89,57 +85,27 @@ export default function ContactPage() {
           <div>
             <h2 className="text-3xl font-bold font-headline mb-6">Informasi Kontak</h2>
             <div className="space-y-6 text-muted-foreground">
-             {isLoading ? (
-                <div className="space-y-6">
-                  <div className="flex items-start gap-4">
-                     <Skeleton className="h-6 w-6 mt-1" />
-                     <div>
-                      <Skeleton className="h-5 w-24 mb-2" />
-                      <Skeleton className="h-4 w-64" />
-                     </div>
-                  </div>
-                   <div className="flex items-start gap-4">
-                     <Skeleton className="h-6 w-6 mt-1" />
-                     <div>
-                      <Skeleton className="h-5 w-24 mb-2" />
-                      <Skeleton className="h-4 w-40" />
-                     </div>
-                  </div>
-                   <div className="flex items-start gap-4">
-                     <Skeleton className="h-6 w-6 mt-1" />
-                     <div>
-                      <Skeleton className="h-5 w-24 mb-2" />
-                      <Skeleton className="h-4 w-48" />
-                     </div>
-                  </div>
+              <div className="flex items-start gap-4">
+                <MapPin className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-foreground">Alamat</h3>
+                  <p>Jl. Raya Kedungreja No.1, Kedungreja, Cilacap, Jawa Tengah</p>
                 </div>
-             ) : settings ? (
-               <>
-                <div className="flex items-start gap-4">
-                  <MapPin className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
-                  <div>
-                    <h3 className="font-semibold text-foreground">Alamat</h3>
-                    <p>{settings.address}</p>
-                  </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <Phone className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-foreground">Telepon</h3>
+                  <a href="tel:+621234567890" className="hover:text-primary">(123) 456-7890</a>
                 </div>
-                <div className="flex items-start gap-4">
-                  <Phone className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
-                  <div>
-                    <h3 className="font-semibold text-foreground">Telepon</h3>
-                    <a href={`tel:${settings.phone}`} className="hover:text-primary">{settings.phone}</a>
-                  </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <Mail className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-foreground">Email</h3>
+                  <a href="mailto:info@smklppmri2.sch.id" className="hover:text-primary">info@smklppmri2.sch.id</a>
                 </div>
-                <div className="flex items-start gap-4">
-                  <Mail className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
-                  <div>
-                    <h3 className="font-semibold text-foreground">Email</h3>
-                    <a href={`mailto:${settings.email}`} className="hover:text-primary">{settings.email}</a>
-                  </div>
-                </div>
-               </>
-             ) : (
-                <p>Pengaturan kontak tidak ditemukan.</p>
-             )}
+              </div>
             </div>
              <div className="mt-8 rounded-lg overflow-hidden h-64 md:h-80">
                  <iframe 

@@ -17,13 +17,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
 import { useCollection, useFirestore, useMemoFirebase, deleteDocumentNonBlocking } from "@/firebase"
 import { collection, query, orderBy, doc } from "firebase/firestore"
 import { format } from "date-fns"
@@ -61,7 +54,6 @@ type ContactMessage = {
 export default function AdminMessagesPage() {
   const firestore = useFirestore()
   const { toast } = useToast()
-  const [selectedMessage, setSelectedMessage] = React.useState<ContactMessage | null>(null)
 
   const messagesQuery = useMemoFirebase(() => {
     if (!firestore) return null
@@ -81,7 +73,6 @@ export default function AdminMessagesPage() {
   }
 
   return (
-    <>
     <Card>
       <CardHeader>
         <CardTitle>Pesan Masuk</CardTitle>
@@ -121,7 +112,6 @@ export default function AdminMessagesPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => setSelectedMessage(msg)}>Lihat</DropdownMenuItem>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600">Hapus</DropdownMenuItem>
@@ -152,20 +142,5 @@ export default function AdminMessagesPage() {
         </Table>
       </CardContent>
     </Card>
-
-    <Dialog open={!!selectedMessage} onOpenChange={(isOpen) => !isOpen && setSelectedMessage(null)}>
-        <DialogContent className="sm:max-w-xl">
-          <DialogHeader>
-            <DialogTitle>{selectedMessage?.subject}</DialogTitle>
-            <DialogDescription>
-              Dari: {selectedMessage?.name} ({selectedMessage?.email})
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4 whitespace-pre-wrap text-sm text-muted-foreground">
-            {selectedMessage?.message}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
   )
 }

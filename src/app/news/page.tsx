@@ -4,14 +4,13 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
-import { useCollection, useFirestore, useMemoFirebase, useDoc } from "@/firebase"
-import { collection, query, orderBy, doc } from "firebase/firestore"
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
+import { collection, query, orderBy } from "firebase/firestore"
 import { Skeleton } from "@/components/ui/skeleton"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
-import type { SiteSettings } from "@/app/admin/settings/page"
 
 type NewsArticle = {
   id: string;
@@ -29,31 +28,17 @@ export default function NewsPage() {
         return query(collection(firestore, "newsArticles"), orderBy("publicationDate", "desc"));
     }, [firestore]);
 
-    const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore]);
-    const { data: settings } = useDoc<SiteSettings>(settingsDocRef);
-
     const { data: articles, isLoading } = useCollection<NewsArticle>(articlesQuery);
-
-    const heroImage = settings?.newsHeroImageUrl || "https://picsum.photos/seed/news-hero/1200/400";
 
     return (
         <div className="bg-background text-foreground">
             {/* Hero Section */}
-            <section className="relative h-64 md:h-80 w-full flex items-center justify-center text-center text-white">
-                <Image
-                    src={heroImage}
-                    alt="Acara sekolah"
-                    fill
-                    className="object-cover"
-                    priority
-                    data-ai-hint="school event"
-                />
-                <div className="absolute inset-0 bg-primary/60" />
-                <div className="relative z-10 p-4">
+            <section className="bg-primary text-primary-foreground">
+                <div className="container mx-auto px-4 md:px-6 py-12 text-center">
                     <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl font-headline">
                         Berita & Acara
                     </h1>
-                    <p className="mt-2 max-w-2xl mx-auto text-lg text-primary-foreground/90">
+                    <p className="mt-4 max-w-2xl mx-auto text-lg text-primary-foreground/90">
                         Ikuti terus informasi dan kegiatan terbaru dari sekolah kami.
                     </p>
                 </div>
@@ -122,5 +107,3 @@ export default function NewsPage() {
         </div>
     )
 }
-
-    

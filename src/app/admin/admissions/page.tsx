@@ -30,13 +30,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -87,11 +80,6 @@ const statusLabels: Record<ApplicationStatus, string> = {
 export default function AdminAdmissionsPage() {
   const firestore = useFirestore()
   const { toast } = useToast()
-  const [selectedApplication, setSelectedApplication] = React.useState<Application | null>(null)
-  const [isDetailViewOpen, setIsDetailViewOpen] = React.useState(false)
-  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = React.useState(false)
-  const [applicationToDelete, setApplicationToDelete] = React.useState<Application | null>(null)
-
 
   const applicationsQuery = useMemoFirebase(() => {
     if (!firestore) return null
@@ -127,19 +115,7 @@ export default function AdminAdmissionsPage() {
     const appRef = doc(firestore, "applications", id);
     deleteDocumentNonBlocking(appRef)
     toast({ title: "Pendaftaran Dihapus", description: "Pendaftaran telah berhasil dihapus." })
-    setIsDeleteAlertOpen(false)
-    setApplicationToDelete(null)
   }
-
-  const openDeleteConfirmation = (app: Application) => {
-    setApplicationToDelete(app);
-    setIsDeleteAlertOpen(true);
-  };
-  
-  const openDetailView = (app: Application) => {
-    setSelectedApplication(app);
-    setIsDetailViewOpen(true);
-  };
 
   const isLoading = isLoadingApps || isLoadingPrograms;
 
@@ -169,10 +145,6 @@ export default function AdminAdmissionsPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                  <DropdownMenuItem onSelect={() => openDetailView(app)}>
-                    Lihat Detail
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
                   <DropdownMenuLabel>Ubah Status</DropdownMenuLabel>
                 {Object.keys(statusVariant).map((status) => (
                   <DropdownMenuItem key={status} onSelect={() => handleStatusChange(app.id, status as ApplicationStatus)}>
@@ -180,9 +152,23 @@ export default function AdminAdmissionsPage() {
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => openDeleteConfirmation(app)} className="text-red-600">
-                    Hapus
-                </DropdownMenuItem>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600">Hapus</DropdownMenuItem>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                      <AlertDialogHeader>
+                          <AlertDialogTitle>Anda yakin ingin menghapus?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                              Tindakan ini tidak dapat diurungkan. Pendaftaran untuk <span className="font-semibold">{app.firstName} {app.lastName}</span> akan dihapus secara permanen.
+                          </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                          <AlertDialogCancel>Batal</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDelete(app.id)}>Lanjutkan</AlertDialogAction>
+                      </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </DropdownMenuContent>
             </DropdownMenu>
           </TableCell>
@@ -197,7 +183,6 @@ export default function AdminAdmissionsPage() {
   }
 
   return (
-    <>
     <Card>
       <CardHeader>
         <CardTitle>Semua Pendaftaran</CardTitle>
@@ -224,62 +209,5 @@ export default function AdminAdmissionsPage() {
         </Table>
       </CardContent>
     </Card>
-
-     <Dialog open={isDetailViewOpen} onOpenChange={setIsDetailViewOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Detail Pendaftaran</DialogTitle>
-            <DialogDescription>
-              Informasi lengkap tentang pendaftar.
-            </DialogDescription>
-          </DialogHeader>
-          {selectedApplication && (
-            <div className="grid gap-4 py-4 text-sm">
-                <div className="grid grid-cols-3 items-center gap-4">
-                    <span className="text-muted-foreground">Nama</span>
-                    <span className="col-span-2 font-semibold">{selectedApplication.firstName} {selectedApplication.lastName}</span>
-                </div>
-                 <div className="grid grid-cols-3 items-center gap-4">
-                    <span className="text-muted-foreground">Email</span>
-                    <span className="col-span-2">{selectedApplication.email}</span>
-                </div>
-                 <div className="grid grid-cols-3 items-center gap-4">
-                    <span className="text-muted-foreground">Telepon</span>
-                    <span className="col-span-2">{selectedApplication.phoneNumber}</span>
-                </div>
-                <div className="grid grid-cols-3 items-center gap-4">
-                    <span className="text-muted-foreground">Program</span>
-                    <span className="col-span-2">{programMap.get(selectedApplication.programId) || 'N/A'}</span>
-                </div>
-                <div className="grid grid-cols-3 items-center gap-4">
-                    <span className="text-muted-foreground">Tanggal</span>
-                    <span className="col-span-2">{selectedApplication.applicationDate ? format(new Date(selectedApplication.applicationDate.seconds * 1000), "dd MMMM yyyy, HH:mm") : 'N/A'}</span>
-                </div>
-                 <div className="grid grid-cols-3 items-center gap-4">
-                    <span className="text-muted-foreground">Status</span>
-                    <div className="col-span-2">
-                        <Badge variant={statusVariant[selectedApplication.status] ?? 'default'} className="capitalize">{statusLabels[selectedApplication.status]}</Badge>
-                    </div>
-                </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    
-      <AlertDialog open={isDeleteAlertOpen} onOpenChange={setIsDeleteAlertOpen}>
-          <AlertDialogContent>
-              <AlertDialogHeader>
-                  <AlertDialogTitle>Anda yakin ingin menghapus?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                      Tindakan ini tidak dapat diurungkan. Pendaftaran untuk <span className="font-semibold">{applicationToDelete?.firstName} {applicationToDelete?.lastName}</span> akan dihapus secara permanen.
-                  </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                  <AlertDialogCancel onClick={() => setApplicationToDelete(null)}>Batal</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => applicationToDelete && handleDelete(applicationToDelete.id)}>Lanjutkan</AlertDialogAction>
-              </AlertDialogFooter>
-          </AlertDialogContent>
-      </AlertDialog>
-    </>
   )
 }

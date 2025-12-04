@@ -1,3 +1,4 @@
+
 import Announcements from "@/components/home/Announcements";
 import Hero from "@/components/home/Hero";
 import FeaturedPrograms from "@/components/home/FeaturedPrograms";
@@ -22,5 +23,3 @@ export default function Home() {
     </PublicLayout>
   );
 }
-
-    

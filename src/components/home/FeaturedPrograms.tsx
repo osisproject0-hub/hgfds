@@ -3,32 +3,19 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, LucideProps } from 'lucide-react';
-import * as LucideIcons from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
 import { collection, query, limit } from "firebase/firestore"
 import { Skeleton } from '../ui/skeleton';
 
-
 type Program = {
   id: string;
   name: string;
   description: string;
   imageUrl: string;
-  icon: string;
 }
-
-const Icon = ({ name, ...props }: { name: string } & LucideProps) => {
-    const LucideIcon = (LucideIcons as any)[name];
-    if (!LucideIcon) {
-      // Return a default icon or null if the icon name is not valid
-      return <LucideIcons.Wrench {...props} />;
-    }
-    return <LucideIcon {...props} />;
-};
-
 
 export default function FeaturedPrograms() {
   const firestore = useFirestore();
@@ -53,13 +40,10 @@ export default function FeaturedPrograms() {
              <Card key={i} className="overflow-hidden">
                 <Skeleton className="h-48 w-full" />
                 <CardContent className="p-6">
-                  <div className="flex items-center gap-4 mb-4">
-                    <Skeleton className="h-12 w-12 rounded-full" />
-                    <Skeleton className="h-6 w-32" />
-                  </div>
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-5/6" />
-                  <Skeleton className="h-10 w-full mt-6" />
+                    <Skeleton className="h-6 w-3/4 mb-4" />
+                    <Skeleton className="h-4 w-full mb-2" />
+                    <Skeleton className="h-4 w-5/6" />
+                    <Skeleton className="h-10 w-full mt-6" />
                 </CardContent>
              </Card>
           ))}
@@ -79,14 +63,9 @@ export default function FeaturedPrograms() {
                     </div>
                   </Link>
                   <div className="p-6">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="bg-primary/10 text-primary p-3 rounded-full">
-                        <Icon name={program.icon} className="h-6 w-6" />
-                      </div>
-                      <h3 className="text-xl font-bold font-headline">
-                         <Link href={`/programs/${program.id}`}>{program.name}</Link>
-                      </h3>
-                    </div>
+                    <h3 className="text-xl font-bold font-headline mb-2">
+                       <Link href={`/programs/${program.id}`}>{program.name}</Link>
+                    </h3>
                     <p className="text-muted-foreground text-sm mb-6 min-h-[60px] line-clamp-3">{program.description}</p>
                     <Button variant="outline" asChild className="w-full">
                       <Link href={`/programs/${program.id}`}>
@@ -99,11 +78,6 @@ export default function FeaturedPrograms() {
             )
           })}
         </div>
-         {!isLoading && programs?.length === 0 && (
-            <div className="col-span-full text-center py-10 text-muted-foreground">
-                <p>Belum ada program unggulan yang tersedia.</p>
-            </div>
-        )}
       </div>
     </section>
   );

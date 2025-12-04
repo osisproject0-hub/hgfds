@@ -12,16 +12,14 @@ import {
 import ProgramsTab from "./programs/page"
 import NewsTab from "./news/page"
 import GalleryTab from "./gallery/page"
-import TestimonialsTab from "./testimonials/page"
 
 export default function AdminContentPage() {
     return (
         <Tabs defaultValue="programs" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="programs">Program Kejuruan</TabsTrigger>
                 <TabsTrigger value="news">Berita & Acara</TabsTrigger>
                 <TabsTrigger value="gallery">Galeri</TabsTrigger>
-                <TabsTrigger value="testimonials">Testimoni</TabsTrigger>
             </TabsList>
             <TabsContent value="programs">
                 <Card>
@@ -59,19 +57,6 @@ export default function AdminContentPage() {
                     </CardHeader>
                     <CardContent>
                         <GalleryTab />
-                    </CardContent>
-                </Card>
-            </TabsContent>
-            <TabsContent value="testimonials">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Testimoni</CardTitle>
-                        <CardDescription>
-                           Kelola testimoni dari siswa, orang tua, dan alumni.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <TestimonialsTab />
                     </CardContent>
                 </Card>
             </TabsContent>

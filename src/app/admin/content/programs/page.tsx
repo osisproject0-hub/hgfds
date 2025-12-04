@@ -47,7 +47,6 @@ export type Program = {
   description: string;
   careerProspects: string;
   imageUrl: string;
-  icon: string;
 }
 
 export default function ProgramsTab() {

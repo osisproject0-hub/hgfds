@@ -97,4 +97,3 @@ export default function GalleryAlbumPage({ params }: { params: { id: string } })
         </div>
     )
 }
-

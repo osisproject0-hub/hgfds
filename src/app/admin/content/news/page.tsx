@@ -40,7 +40,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { format } from "date-fns"
-import { Badge } from "@/components/ui/badge"
 
 export type NewsArticle = {
   id?: string;
@@ -49,7 +48,6 @@ export type NewsArticle = {
   author: string;
   publicationDate: any; // Firestore timestamp
   imageUrl: string;
-  category: "Berita" | "Pengumuman" | "Acara";
 }
 
 export default function NewsTab() {
@@ -83,17 +81,6 @@ export default function NewsTab() {
     toast({ title: "Artikel Dihapus", description: "Artikel berita telah berhasil dihapus." })
   }
 
-  const getBadgeVariant = (category: NewsArticle['category']) => {
-    switch (category) {
-      case 'Pengumuman': return 'destructive';
-      case 'Acara': return 'default';
-      case 'Berita':
-      default:
-        return 'secondary';
-    }
-  }
-
-
   return (
     <>
       <div className="flex justify-end mb-4">
@@ -107,7 +94,6 @@ export default function NewsTab() {
           <TableHeader>
             <TableRow>
               <TableHead>Judul</TableHead>
-              <TableHead>Kategori</TableHead>
               <TableHead>Tanggal Publikasi</TableHead>
               <TableHead className="w-[100px] text-right">Aksi</TableHead>
             </TableRow>
@@ -115,15 +101,12 @@ export default function NewsTab() {
           <TableBody>
             {isLoading && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">Loading...</TableCell>
+                <TableCell colSpan={3} className="text-center">Loading...</TableCell>
               </TableRow>
             )}
             {articles && articles.length > 0 ? articles.map((article) => (
               <TableRow key={article.id}>
                 <TableCell className="font-medium">{article.title}</TableCell>
-                <TableCell>
-                  <Badge variant={getBadgeVariant(article.category)}>{article.category}</Badge>
-                </TableCell>
                 <TableCell>
                   {article.publicationDate ? format(new Date(article.publicationDate.seconds * 1000), "dd MMMM yyyy") : 'N/A'}
                 </TableCell>
@@ -159,7 +142,7 @@ export default function NewsTab() {
               </TableRow>
             )) : !isLoading && (
                <TableRow>
-                <TableCell colSpan={4} className="text-center">Belum ada artikel berita.</TableCell>
+                <TableCell colSpan={3} className="text-center">Belum ada artikel berita.</TableCell>
               </TableRow>
             )}
           </TableBody>
