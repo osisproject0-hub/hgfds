@@ -540,5 +540,3 @@ export default function AdminSettingsPage() {
     </Card>
   )
 }
-
-    

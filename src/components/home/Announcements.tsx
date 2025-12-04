@@ -12,10 +12,10 @@ export default function Announcements() {
   const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore]);
   const { data: settings } = useDoc<SiteSettings>(settingsDocRef);
   
-  const announcementText = settings?.announcementText || "Pendaftaran Siswa Baru 2024/2025 sekarang dibuka!";
-  const announcementLink = settings?.announcementLink || "/admissions";
+  const announcementText = settings?.announcementText;
+  const announcementLink = settings?.announcementLink || "#";
   
-  if (!settings?.announcementText) {
+  if (!announcementText) {
     return null;
   }
 
@@ -33,5 +33,3 @@ export default function Announcements() {
     </div>
   );
 }
-
-    

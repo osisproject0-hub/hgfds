@@ -76,10 +76,10 @@ export default function Stats() {
 
 
   const schoolStats = [
-    { value: settings?.statsStudents ?? 1200, label: 'Siswa', icon: GraduationCap },
-    { value: settings?.statsTeachers ?? 50, label: 'Guru Ahli', icon: Users },
-    { value: settings?.statsGraduationRate ?? 95, label: 'Tingkat Kelulusan (%)', icon: Award },
-    { value: programs?.length || 4, label: 'Program Kejuruan', icon: BookOpen },
+    { value: settings?.statsStudents ?? 0, label: 'Siswa', icon: GraduationCap },
+    { value: settings?.statsTeachers ?? 0, label: 'Guru Ahli', icon: Users },
+    { value: settings?.statsGraduationRate ?? 0, label: 'Tingkat Kelulusan (%)', icon: Award },
+    { value: programs?.length || 0, label: 'Program Kejuruan', icon: BookOpen },
   ];
 
   return (
@@ -110,5 +110,3 @@ export default function Stats() {
     </div>
   );
 }
-
-    
