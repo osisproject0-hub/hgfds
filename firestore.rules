@@ -46,8 +46,9 @@ service cloud.firestore {
      * This is intended to be called within a write rule for the users collection.
      */
     function isFirstUser() {
-        return !exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-               getAfter(/databases/$(database)/documents/users).size() == 0;
+        // This is a simplified check. A robust implementation might require a Cloud Function for atomicity.
+        // It checks if the number of users is zero before the current write operation.
+        return list(/databases/$(database)/documents/users).size() == 0;
     }
 
     //----------------------------------------------------------------------
@@ -106,12 +107,12 @@ service cloud.firestore {
 
     /**
      * @description Manages student applications. Anyone can create (submit) an application.
-     *  Only admins can read, update, or delete them. This enables a global admin view.
+     *  Only admins can read, list, update, or delete them. This enables a global admin view.
      * @path /applications/{applicationId}
      */
     match /applications/{applicationId} {
       allow create: if true;
-      allow read, update, delete: if isAdmin();
+      allow get, list, update, delete: if isAdmin();
     }
 
     /**
@@ -133,23 +134,27 @@ service cloud.firestore {
      * @description Manages user profile data and roles.
      *  - A user can read their own profile.
      *  - Any user can create their own user document on signup. The first user is automatically made a Super Admin.
-     *  - Only Super Admins can list, update, or delete other users.
+     *  - Only Admins or Super Admins can list users.
+     *  - Only Super Admins can update or delete other users.
      * @path /users/{userId}
      */
     match /users/{userId} {
       allow get: if isOwner(userId) || isAdmin();
-      allow create: if isOwner(userId) && 
-                      // The first user becomes a Super Admin
-                      (isFirstUser() && request.resource.data.role == 'Super Admin' ||
-                      // Subsequent users get the 'User' role by default
-                      !isFirstUser() && request.resource.data.role == 'User');
-                      
-      // A user can update their own displayName and photoURL, but not their role.
-      allow update: if isOwner(userId) && request.resource.data.keys().hasAll(['displayName', 'photoURL']) && !request.resource.data.keys().has('role');
-      
       allow list: if isAdmin();
       
-      // Only a Super Admin can change roles or delete users.
+      allow create: if isOwner(userId) && (
+          // The first user being created must have the 'Super Admin' role.
+          (isFirstUser() && request.resource.data.role == 'Super Admin') ||
+          // Subsequent users must have the 'User' role.
+          (!isFirstUser() && request.resource.data.role == 'User')
+      );
+                      
+      // A user can update their own displayName and photoURL, but not their role.
+      allow update: if isOwner(userId) && 
+                      request.resource.data.keys().hasAll(['displayName', 'photoURL']) && 
+                      !request.resource.data.keys().has('role');
+      
+      // Only a Super Admin can change other users' roles or delete users.
       allow update, delete: if isSuperAdmin(); 
     }
   }
