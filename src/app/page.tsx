@@ -1,5 +1,3 @@
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import Announcements from "@/components/home/Announcements";
 import Hero from "@/components/home/Hero";
 import FeaturedPrograms from "@/components/home/FeaturedPrograms";
@@ -8,13 +6,12 @@ import Stats from "@/components/home/Stats";
 import Testimonials from "@/components/home/Testimonials";
 import NewsAndEvents from "@/components/home/NewsAndEvents";
 import AdmissionsPreview from "@/components/home/AdmissionsPreview";
+import PublicLayout from "@/components/layout/PublicLayout";
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Announcements />
-      <Header />
-      <main className="flex-grow">
+    <PublicLayout>
+        <Announcements />
         <Hero />
         <FeaturedPrograms />
         <AboutPreview />
@@ -22,8 +19,6 @@ export default function Home() {
         <AdmissionsPreview />
         <Testimonials />
         <NewsAndEvents />
-      </main>
-      <Footer />
-    </div>
+    </PublicLayout>
   );
 }

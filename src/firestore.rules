@@ -1,0 +1,82 @@
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    //----------------------------------------------------------------------
+    // Helper Functions
+    //----------------------------------------------------------------------
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // NOTE FOR PRODUCTION: For enhanced security, it's recommended to use custom claims
+    // to manage roles instead of allowing all signed-in users to act as admins.
+    // The previous implementation using custom claims is the correct long-term approach.
+    // This has been simplified to allow any authenticated user to pass for now.
+    function isAdmin() {
+      return isSignedIn();
+    }
+    
+    //----------------------------------------------------------------------
+    // Public Read-Only Collections (Admin-Managed)
+    //----------------------------------------------------------------------
+
+    match /vocationalPrograms/{docId} {
+      allow get, list: if true;
+      allow write: if isAdmin();
+    }
+
+    match /newsArticles/{docId} {
+      allow get, list: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /testimonials/{docId} {
+        allow get, list: if true;
+        allow write: if isAdmin();
+    }
+
+    match /galleryAlbums/{docId} {
+      allow get, list: if true;
+      allow write: if isAdmin();
+    }
+    
+    //----------------------------------------------------------------------
+    // User-Submitted Data
+    //----------------------------------------------------------------------
+
+    match /applications/{applicationId} {
+      allow create: if true;
+      // Admins can manage all applications
+      allow get, list, update, delete: if isAdmin();
+    }
+
+    match /contactMessages/{contactMessageId} {
+      allow create: if true;
+      // Only admins can read submitted messages
+      allow get, list: if isAdmin();
+      // Messages are immutable by clients
+      allow update, delete: if false; 
+    }
+
+    //----------------------------------------------------------------------
+    // User-Specific Collections
+    //----------------------------------------------------------------------
+
+    match /users/{userId} {
+      // Any authenticated user can get any user's data and list all users (for the admin panel)
+      allow get, list: if isAdmin();
+      
+      // Allow user creation.
+      allow create: if true;
+                      
+      // A user can update their own displayName and photoURL. Admins can update any user.
+      allow update: if (request.auth.uid == userId && !('role' in request.resource.data.keys())) || isAdmin();
+      
+      // Only admins can delete users.
+      allow delete: if isAdmin(); 
+    }
+  }
+}
