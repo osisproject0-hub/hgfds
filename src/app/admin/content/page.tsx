@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card"
 import ProgramsTab from "./programs/page"
 import NewsTab from "./news/page"
+import GalleryTab from "./gallery/page"
 
 export default function AdminContentPage() {
     return (
@@ -55,7 +56,7 @@ export default function AdminContentPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p>Fitur untuk mengelola galeri akan segera hadir.</p>
+                        <GalleryTab />
                     </CardContent>
                 </Card>
             </TabsContent>
