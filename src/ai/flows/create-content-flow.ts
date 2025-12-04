@@ -3,30 +3,15 @@
  * @fileOverview An AI agent that creates content based on a user's prompt.
  *
  * - createContent - A function that handles the content creation process.
- * - CreateContentInput - The input type for the createContent function.
- * - CreateContentOutput - The return type for the createContent function.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
-
-const newsCategories = ["Berita", "Pengumuman", "Acara"] as const;
-
-export const CreateContentInputSchema = z.object({
-  prompt: z.string().describe('The user\'s prompt to create content.'),
-});
-export type CreateContentInput = z.infer<typeof CreateContentInputSchema>;
-
-export const CreateContentOutputSchema = z.object({
-    contentType: z.enum(['newsArticle']).describe("The type of content to be created."),
-    data: z.object({
-        title: z.string().describe("The title of the content."),
-        content: z.string().describe("The full body/content."),
-        imageUrl: z.string().url().describe("A relevant placeholder image URL from picsum.photos."),
-        category: z.enum(newsCategories).describe("The most appropriate category for the content.")
-    }).describe("The structured data of the created content.")
-});
-export type CreateContentOutput = z.infer<typeof CreateContentOutputSchema>;
+import {
+  CreateContentInputSchema,
+  CreateContentOutputSchema,
+  type CreateContentInput,
+  type CreateContentOutput,
+} from '@/ai/schemas/content-creation';
 
 export async function createContent(
   input: CreateContentInput
