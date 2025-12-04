@@ -2,13 +2,16 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
 import { collection, query, orderBy } from "firebase/firestore"
 import { Skeleton } from "@/components/ui/skeleton"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
+import { Button } from "@/components/ui/button"
+import { ArrowRight } from "lucide-react"
 
 type NewsArticle = {
   id: string;
@@ -59,40 +62,52 @@ export default function NewsPage() {
             <main className="container mx-auto px-4 md:px-6 py-12 md:py-20">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                      {isLoading && Array.from({ length: 3 }).map((_, i) => (
-                        <Card key={i} className="overflow-hidden">
+                        <Card key={i} className="overflow-hidden flex flex-col">
                            <Skeleton className="h-56 w-full" />
                            <CardHeader>
                                <Skeleton className="h-4 w-1/3" />
                                <Skeleton className="h-6 w-full mt-2" />
-                               <Skeleton className="h-4 w-5/6 mt-1" />
                            </CardHeader>
-                           <CardContent>
+                           <CardContent className="flex-grow">
                                <Skeleton className="h-4 w-full" />
                                <Skeleton className="h-4 w-full mt-2" />
-                               <Skeleton className="h-4 w-3/4 mt-2" />
                            </CardContent>
+                           <CardFooter>
+                               <Skeleton className="h-10 w-full" />
+                           </CardFooter>
                         </Card>
                      ))}
                      {articles?.map(article => (
                         <Card key={article.id} className="flex flex-col overflow-hidden transition-shadow hover:shadow-lg">
-                           <div className="relative h-56 w-full">
-                               <Image 
-                                   src={article.imageUrl || "https://picsum.photos/seed/news/600/400"} 
-                                   alt={`Gambar untuk ${article.title}`}
-                                   fill
-                                   className="object-cover"
-                                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                               />
-                           </div>
+                            <Link href={`/news/${article.id}`} className="block">
+                               <div className="relative h-56 w-full">
+                                   <Image 
+                                       src={article.imageUrl || "https://picsum.photos/seed/news/600/400"} 
+                                       alt={`Gambar untuk ${article.title}`}
+                                       fill
+                                       className="object-cover"
+                                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                   />
+                               </div>
+                            </Link>
                            <CardHeader>
                                <CardDescription>
                                    {article.publicationDate ? format(new Date(article.publicationDate.seconds * 1000), "dd MMMM yyyy", { locale: id }) : ''}
                                </CardDescription>
-                               <CardTitle className="text-xl font-headline text-primary">{article.title}</CardTitle>
+                               <CardTitle className="text-xl font-headline text-primary">
+                                 <Link href={`/news/${article.id}`}>{article.title}</Link>
+                               </CardTitle>
                            </CardHeader>
                            <CardContent className="flex-grow">
                                <p className="text-sm text-muted-foreground line-clamp-3">{article.content}</p>
                            </CardContent>
+                            <CardFooter>
+                               <Button asChild variant="secondary" className="w-full">
+                                   <Link href={`/news/${article.id}`}>
+                                       Baca Selengkapnya <ArrowRight className="ml-2 h-4 w-4" />
+                                   </Link>
+                               </Button>
+                           </CardFooter>
                        </Card>
                      ))}
                 </div>

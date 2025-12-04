@@ -1,4 +1,4 @@
-// This is a new file
+
 "use client"
 
 import * as React from "react"
@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { useCollection, useFirestore, useMemoFirebase, addDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase"
+import { useCollection, useFirestore, useMemoFirebase, deleteDocumentNonBlocking } from "@/firebase"
 import { collection, query, doc } from "firebase/firestore"
 import {
   DropdownMenu,
@@ -129,7 +129,7 @@ export default function ProgramsTab() {
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                   <AlertDialogCancel>Batal</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleDelete(program.id)}>Lanjutkan</AlertDialogAction>
+                                  <AlertDialogAction onClick={() => program.id && handleDelete(program.id)}>Lanjutkan</AlertDialogAction>
                               </AlertDialogFooter>
                           </AlertDialogContent>
                       </AlertDialog>

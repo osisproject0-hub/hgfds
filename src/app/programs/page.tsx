@@ -1,12 +1,14 @@
-// This is a new file
+
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
 import { collection, query } from "firebase/firestore"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/components/ui/button"
 
 type Program = {
   id: string;
@@ -70,33 +72,42 @@ export default function ProgramsPage() {
                            <CardHeader>
                                <Skeleton className="h-6 w-3/4" />
                                <Skeleton className="h-4 w-full mt-2" />
-                               <Skeleton className="h-4 w-5/6 mt-1" />
                            </CardHeader>
                            <CardContent>
                                <Skeleton className="h-5 w-1/4 mb-2" />
                                <Skeleton className="h-4 w-full" />
                                <Skeleton className="h-4 w-full mt-1" />
+                               <Skeleton className="h-10 w-full mt-4" />
                            </CardContent>
                         </Card>
                      ))}
                      {programs?.map(program => (
                         <Card key={program.id} className="flex flex-col overflow-hidden transition-shadow hover:shadow-lg">
-                           <div className="relative h-56 w-full">
-                               <Image 
-                                   src={program.imageUrl || "https://picsum.photos/600/400"} 
-                                   alt={`Gambar untuk ${program.name}`}
-                                   fill
-                                   className="object-cover"
-                                   sizes="(max-width: 768px) 100vw, 50vw"
-                               />
-                           </div>
+                            <Link href={`/programs/${program.id}`} className="block">
+                               <div className="relative h-56 w-full">
+                                   <Image 
+                                       src={program.imageUrl || "https://picsum.photos/600/400"} 
+                                       alt={`Gambar untuk ${program.name}`}
+                                       fill
+                                       className="object-cover"
+                                       sizes="(max-width: 768px) 100vw, 50vw"
+                                   />
+                               </div>
+                            </Link>
                            <CardHeader>
-                               <CardTitle className="text-2xl font-headline text-primary">{program.name}</CardTitle>
-                               <CardDescription>{program.description}</CardDescription>
+                               <CardTitle className="text-2xl font-headline text-primary">
+                                 <Link href={`/programs/${program.id}`}>{program.name}</Link>
+                                </CardTitle>
+                               <CardDescription className="line-clamp-3">{program.description}</CardDescription>
                            </CardHeader>
-                           <CardContent className="flex-grow">
-                               <h4 className="font-semibold mb-2 text-foreground">Prospek Karir</h4>
-                               <p className="text-sm text-muted-foreground">{program.careerProspects}</p>
+                           <CardContent className="flex-grow flex flex-col">
+                                <div className="flex-grow">
+                                   <h4 className="font-semibold mb-2 text-foreground">Prospek Karir</h4>
+                                   <p className="text-sm text-muted-foreground line-clamp-2">{program.careerProspects}</p>
+                                </div>
+                                <Button asChild variant="outline" className="mt-4 w-full">
+                                    <Link href={`/programs/${program.id}`}>Lihat Detail</Link>
+                                </Button>
                            </CardContent>
                        </Card>
                      ))}

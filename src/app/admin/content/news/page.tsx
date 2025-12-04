@@ -134,7 +134,7 @@ export default function NewsTab() {
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                   <AlertDialogCancel>Batal</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleDelete(article.id)}>Lanjutkan</AlertDialogAction>
+                                  <AlertDialogAction onClick={() => article.id && handleDelete(article.id)}>Lanjutkan</AlertDialogAction>
                               </AlertDialogFooter>
                           </AlertDialogContent>
                       </AlertDialog>

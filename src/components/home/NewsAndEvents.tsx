@@ -60,7 +60,7 @@ export default function NewsAndEvents() {
           ))}
           {articles && articles.map((post) => (
             <Card key={post.id} className="group overflow-hidden">
-              <Link href={`/news`} className="block">
+              <Link href={`/news/${post.id}`} className="block">
                 <CardContent className="p-0">
                   <div className="relative h-56 w-full">
                     <Image

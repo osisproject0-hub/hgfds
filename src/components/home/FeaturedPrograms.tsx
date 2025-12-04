@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from 'next/link';
@@ -63,25 +64,29 @@ export default function FeaturedPrograms() {
             return (
               <Card key={program.id} className="overflow-hidden group transition-all hover:shadow-xl hover:-translate-y-1">
                 <CardContent className="p-0">
-                  <div className="relative h-48 w-full">
-                    <Image
-                      src={program.imageUrl}
-                      alt={program.name}
-                      fill
-                      className="object-cover transition-transform group-hover:scale-105"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
-                  </div>
+                  <Link href={`/programs/${program.id}`} className="block">
+                    <div className="relative h-48 w-full">
+                      <Image
+                        src={program.imageUrl}
+                        alt={program.name}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
+                    </div>
+                  </Link>
                   <div className="p-6">
                     <div className="flex items-center gap-4 mb-4">
                       <div className="bg-primary/10 text-primary p-3 rounded-full">
                         <ProgramIcon className="h-6 w-6" />
                       </div>
-                      <h3 className="text-xl font-bold font-headline">{program.name}</h3>
+                      <h3 className="text-xl font-bold font-headline">
+                         <Link href={`/programs/${program.id}`}>{program.name}</Link>
+                      </h3>
                     </div>
                     <p className="text-muted-foreground text-sm mb-6 min-h-[60px] line-clamp-3">{program.description}</p>
                     <Button variant="outline" asChild className="w-full">
-                      <Link href="/programs">
+                      <Link href={`/programs/${program.id}`}>
                         Learn More <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>

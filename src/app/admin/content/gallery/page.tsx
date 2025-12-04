@@ -46,7 +46,6 @@ export type GalleryAlbum = {
   name: string;
   description: string;
   imageUrls: string[];
-  videoUrls?: string[];
 }
 
 export default function GalleryTab() {
