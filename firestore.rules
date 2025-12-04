@@ -24,8 +24,6 @@ service cloud.firestore {
     }
     
     function isAdmin() {
-      // Check for custom claims first, then fall back to document-based role.
-      // This is a more robust way but for now we stick to document role.
       return isSignedIn() && (isRole('Admin') || isRole('Super Admin'));
     }
 
@@ -34,7 +32,6 @@ service cloud.firestore {
     }
 
     // This function checks if the 'users' collection is empty.
-    // It is used to assign the 'Super Admin' role to the very first user.
     function isFirstUser() {
       return !exists(/databases/$(database)/documents/users);
     }
@@ -94,11 +91,10 @@ service cloud.firestore {
       
       // Allow user creation.
       // The role is set based on whether this is the first user or not.
-      allow create: if isOwner(userId) && 
-                      (
-                        (request.resource.data.role == 'Super Admin' && isFirstUser()) ||
-                        (request.resource.data.role == 'User' && !isFirstUser())
-                      );
+      allow create: if request.auth != null && (
+        (isFirstUser() && request.resource.data.role == 'Super Admin') ||
+        (!isFirstUser() && request.resource.data.role == 'User')
+      );
                       
       // A user can update their own displayName and photoURL, but not their role.
       allow update: if isOwner(userId) && 
