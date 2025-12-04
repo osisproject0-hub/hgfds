@@ -1,16 +1,18 @@
 
+
 "use client"
 
 import Image from "next/image"
 import Link from "next/link"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
-import { collection, query, orderBy } from "firebase/firestore"
+import { useCollection, useFirestore, useMemoFirebase, useDoc } from "@/firebase"
+import { collection, query, orderBy, doc } from "firebase/firestore"
 import { Skeleton } from "@/components/ui/skeleton"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
+import type { SiteSettings } from "@/app/admin/settings/page"
 
 type NewsArticle = {
   id: string;
@@ -27,14 +29,28 @@ export default function NewsPage() {
         if (!firestore) return null;
         return query(collection(firestore, "newsArticles"), orderBy("publicationDate", "desc"));
     }, [firestore]);
+    
+    const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore])
+    const { data: settings } = useDoc<SiteSettings>(settingsDocRef)
 
     const { data: articles, isLoading } = useCollection<NewsArticle>(articlesQuery);
+
+    const heroImage = settings?.newsHeroImageUrl || "https://picsum.photos/seed/news-hero/1200/400";
 
     return (
         <div className="bg-background text-foreground">
             {/* Hero Section */}
-            <section className="bg-primary text-primary-foreground">
-                <div className="container mx-auto px-4 md:px-6 py-12 text-center">
+            <section className="relative h-64 md:h-80 w-full flex items-center justify-center text-center text-white">
+                 <Image
+                    src={heroImage}
+                    alt="Berita Sekolah"
+                    fill
+                    className="object-cover"
+                    priority
+                    data-ai-hint="news events"
+                />
+                <div className="absolute inset-0 bg-primary/60" />
+                <div className="relative z-10 p-4">
                     <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl font-headline">
                         Berita & Acara
                     </h1>
