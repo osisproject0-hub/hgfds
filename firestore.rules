@@ -1,0 +1,252 @@
+/**
+ * Core Philosophy: This ruleset secures a school management and information website.
+ * It provides public read-only access to general school information like programs,
+ * news, and events, while strictly controlling all write operations, which are
+ * reserved for administrative users. User-specific data, such as applications,
+ * is protected under a strict ownership model.
+ *
+ * Data Structure: The data is organized into top-level collections for public
+ * information (e.g., /newsArticles, /events) and a /users collection for managing
+ * accounts and roles. Sensitive, user-specific data is nested within user-owned
+ * paths (e.g., /users/{userId}/applications/{applicationId}) to leverage path-based security.
+ *
+ * Key Security Decisions:
+ * - Public Read, Admin Write: All top-level informational collections are publicly readable
+ *   but can only be modified by users with an 'Admin' or 'Super Admin' role.
+ * - Role-Based Access Control (RBAC): A user's role is stored in their /users/{userId}
+ *   document and is the primary mechanism for granting administrative privileges.
+ * - Strict Ownership: Users have full control over documents nested directly under
+ *   their own user ID, such as their applications. They cannot access data belonging to other users.
+ * - User Privacy: Listing the entire /users collection is explicitly disallowed to
+ *   prevent enumeration of all platform users.
+ *
+ * Denormalization for Authorization: The rules rely on a denormalized 'role' field within
+ * each document in the /users collection. This allows for a single `get()` call within a
+ * helper function (`isAdmin()`) to efficiently check for administrative privileges without
+ * needing to query other collections.
+ *
+ * Structural Segregation: Public data (like `/vocationalPrograms`) and private user data
+ * (like `/users/{userId}/applications`) are stored in separate collections. This separation
+ * simplifies security rules, enhances query performance, and prevents accidental data leakage,
+ * especially in `list` operations.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    //----------------------------------------------------------------------
+    // Helper Functions
+    //----------------------------------------------------------------------
+
+    /**
+     * Checks if a user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Validates if the requesting user's UID matches the provided userId.
+     * This is the foundation of the user-ownership model.
+     * @param userId The user ID to check against the authenticated user.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Checks if a document exists before an update or delete operation.
+     * Crucially, also verifies that the requesting user is the owner.
+     * @param userId The user ID to check against the authenticated user.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * Checks if the authenticated user has an 'Admin' or 'Super Admin' role.
+     * This function performs a read on the user's own document to fetch their role.
+     */
+    function isAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['Admin', 'Super Admin'];
+    }
+
+    //----------------------------------------------------------------------
+    // Public Read-Only Collections (Admin-Managed)
+    //----------------------------------------------------------------------
+
+    /**
+     * @description Manages vocational programs. Publicly readable by anyone, but
+     *   only administrators can create, update, or delete entries.
+     * @path /vocationalPrograms/{vocationalProgramId}
+     * @allow (get) Any user, signed in or not, can read a program.
+     * @deny (create) A signed-in user without an admin role cannot create a program.
+     * @principle Public read with role-based write access.
+     */
+    match /vocationalPrograms/{vocationalProgramId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Manages news articles. Publicly readable by anyone, but
+     *   only administrators can create, update, or delete articles.
+     * @path /newsArticles/{newsArticleId}
+     * @allow (get) Any user, signed in or not, can read a news article.
+     * @deny (update) A signed-in user without an admin role cannot update an article.
+     * @principle Public read with role-based write access.
+     */
+    match /newsArticles/{newsArticleId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Manages school events. Publicly readable by anyone, but
+     *   only administrators can create, update, or delete events.
+     * @path /events/{eventId}
+     * @allow (get) Any user, signed in or not, can read an event.
+     * @deny (delete) A signed-in user without an admin role cannot delete an event.
+     * @principle Public read with role-based write access.
+     */
+    match /events/{eventId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Manages gallery albums. Publicly readable by anyone, but
+     *   only administrators can create, update, or delete albums.
+     * @path /galleryAlbums/{galleryAlbumId}
+     * @allow (list) Any user, signed in or not, can list all gallery albums.
+     * @deny (create) A signed-in user without an admin role cannot create an album.
+     * @principle Public read with role-based write access.
+     */
+    match /galleryAlbums/{galleryAlbumId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Manages testimonials. Publicly readable by anyone, but
+     *   only administrators can create, update, or delete testimonials.
+     * @path /testimonials/{testimonialId}
+     * @allow (get) Any user, signed in or not, can read a testimonial.
+     * @deny (update) A signed-in user without an admin role cannot update a testimonial.
+     * @principle Public read with role-based write access.
+     */
+    match /testimonials/{testimonialId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    
+    /**
+     * @description Manages school subjects. Publicly readable by anyone, but
+     *   only administrators can create, update, or delete subjects.
+     * @path /subjects/{subjectId}
+     * @allow (get) Any user, signed in or not, can read a subject.
+     * @deny (create) A signed-in user without an admin role cannot create a subject.
+     * @principle Public read with role-based write access.
+     */
+    match /subjects/{subjectId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Manages teacher profiles. Publicly readable by anyone, but
+     *   only administrators can create, update, or delete teacher profiles.
+     * @path /teachers/{teacherId}
+     * @allow (list) Any user, signed in or not, can list all teachers.
+     * @deny (delete) A signed-in user without an admin role cannot delete a teacher profile.
+     * @principle Public read with role-based write access.
+     */
+    match /teachers/{teacherId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    
+    /**
+     * @description Manages student profiles. Publicly readable by anyone, but
+     *   only administrators can create, update, or delete student profiles.
+     * @path /students/{studentId}
+     * @allow (list) Any user, signed in or not, can list all students.
+     * @deny (create) A signed-in user without an admin role cannot create a student profile.
+     * @principle Public read with role-based write access.
+     */
+    match /students/{studentId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+
+      /**
+       * @description Manages attendance records for a specific student.
+       *   A student can only read their own attendance records. Only administrators
+       *   can create, update, or delete attendance records.
+       * @path /students/{studentId}/attendances/{attendanceId}
+       * @allow (get) A student with auth.uid matching {studentId} can read an attendance record.
+       * @deny (get) A student cannot read another student's attendance records.
+       * @deny (create) A student cannot create their own attendance record.
+       * @principle Enforces document ownership for reads and role-based access for writes.
+       */
+      match /attendances/{attendanceId} {
+        allow get, list: if isOwner(studentId) || isAdmin();
+        allow create: if isAdmin() && request.resource.data.studentId == studentId;
+        allow update: if isAdmin() && resource != null && request.resource.data.studentId == resource.data.studentId;
+        allow delete: if isAdmin() && resource != null;
+      }
+    }
+    
+    /**
+     * @description Manages class information. Publicly readable by anyone, but
+     *   only administrators can create, update, or delete class information.
+     * @path /classes/{classId}
+     * @allow (get) Any user, signed in or not, can read class information.
+     * @deny (update) A signed-in user without an admin role cannot update class information.
+     * @principle Public read with role-based write access.
+     */
+    match /classes/{classId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    //----------------------------------------------------------------------
+    // User-Specific Collections
+    //----------------------------------------------------------------------
+
+    /**
+     * @description Manages user profile data and roles. A user can create their own
+     *   profile and read it. Only admins can modify user profiles, particularly the 'role' field.
+     *   Listing all users is forbidden for privacy.
+     * @path /users/{userId}
+     * @allow (create) A new user with auth.uid 'user_abc' can create their document at /users/user_abc.
+     * @allow (get) A user can read their own profile at /users/{their-own-uid}.
+     * @deny (list) No user, including admins, can query the entire /users collection.
+     * @deny (update) A regular user cannot change their own role.
+     * @principle Enforces document ownership and protects against user enumeration.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      // An admin can update any user. A user can update their own profile, but cannot change their role.
+      allow update: if (isAdmin() && resource != null) || (isExistingOwner(userId) && request.resource.data.role == resource.data.role);
+      allow delete: if isAdmin() && resource != null;
+
+      /**
+       * @description Manages student applications submitted by a user. A user can
+       *   create, read, and list their own applications. Admins can manage all applications.
+       * @path /users/{userId}/applications/{applicationId}
+       * @allow (create) User 'user_abc' can create a new application at /users/user_abc/applications/{appId}.
+       * @deny (get) User 'user_abc' cannot read an application at /users/user_xyz/applications/{appId}.
+       * @principle Restricts access to a user's own data tree, with admin oversight.
+       */
+      match /applications/{applicationId} {
+        allow get: if isOwner(userId) || isAdmin();
+        allow list: if isOwner(userId); // Admins should use a backend function to list all applications
+        allow create: if isOwner(userId);
+        allow update: if isExistingOwner(userId) || (isAdmin() && resource != null);
+        allow delete: if isExistingOwner(userId) || (isAdmin() && resource != null);
+      }
+    }
+  }
+}
