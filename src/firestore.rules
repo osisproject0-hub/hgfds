@@ -10,13 +10,24 @@ service cloud.firestore {
     function isSignedIn() {
       return request.auth != null;
     }
+    
+    function getUserData(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data;
+    }
 
-    // NOTE FOR PRODUCTION: For enhanced security, it's recommended to use custom claims
-    // to manage roles instead of allowing all signed-in users to act as admins.
-    // The previous implementation using custom claims is the correct long-term approach.
-    // This has been simplified to allow any authenticated user to pass for now.
+    function isSuperAdmin() {
+       if (!isSignedIn()) {
+        return false;
+      }
+      return getUserData(request.auth.uid).role == 'Super Admin';
+    }
+
     function isAdmin() {
-      return isSignedIn();
+      if (!isSignedIn()) {
+        return false;
+      }
+      let userRole = getUserData(request.auth.uid).role;
+      return userRole == 'Admin' || userRole == 'Super Admin';
     }
     
     //----------------------------------------------------------------------
@@ -55,10 +66,10 @@ service cloud.firestore {
 
     match /contactMessages/{contactMessageId} {
       allow create: if true;
-      // Only admins can read submitted messages
-      allow get, list: if isAdmin();
+      // Admins can read and delete submitted messages
+      allow get, list, delete: if isAdmin();
       // Messages are immutable by clients
-      allow update, delete: if false; 
+      allow update: if false; 
     }
 
     //----------------------------------------------------------------------
@@ -67,16 +78,23 @@ service cloud.firestore {
 
     match /users/{userId} {
       // Any authenticated user can get any user's data and list all users (for the admin panel)
-      allow get, list: if isAdmin();
+      allow get, list: if isSignedIn();
       
-      // Allow user creation.
+      // Allow user creation for anyone (signup).
       allow create: if true;
                       
-      // A user can update their own displayName and photoURL. Admins can update any user.
-      allow update: if (request.auth.uid == userId && !('role' in request.resource.data.keys())) || isAdmin();
+      // A user can update their own displayName and photoURL.
+      // An Admin can update any user's displayName and photoURL.
+      // A Super Admin can update any user's displayName, photoURL, and role.
+      // No one can change their own role.
+      allow update: if (request.auth.uid == userId && !('role' in request.resource.data.keys())) ||
+                      (isAdmin() && !isSuperAdmin() && !('role' in request.resource.data.keys())) ||
+                      isSuperAdmin();
       
-      // Only admins can delete users.
-      allow delete: if isAdmin(); 
+      // Only admins can delete users, but not themselves or other admins/superadmins unless they are superadmin.
+      allow delete: if isAdmin() && 
+                       request.auth.uid != userId && 
+                       (isSuperAdmin() || getUserData(userId).role == 'User');
     }
 
     //----------------------------------------------------------------------

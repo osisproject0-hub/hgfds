@@ -74,6 +74,8 @@ export default function AdminUsersPage() {
   }, [firestore])
 
   const { data: users, isLoading } = useCollection<User>(usersQuery)
+  
+  const currentUserData = React.useMemo(() => users?.find(u => u.id === currentUser?.uid), [users, currentUser]);
 
   const getInitials = (name?: string | null, email?: string) => {
     if (name) {
@@ -88,7 +90,6 @@ export default function AdminUsersPage() {
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
     if (!firestore) return;
 
-    const currentUserData = users?.find(u => u.id === currentUser?.uid);
     if (currentUserData?.role !== 'Super Admin' && newRole === 'Super Admin') {
         toast({
             variant: "destructive",
@@ -99,54 +100,47 @@ export default function AdminUsersPage() {
     }
 
     const userDocRef = doc(firestore, "users", userId);
-    try {
-      await updateDocumentNonBlocking(userDocRef, { role: newRole });
-      toast({
-        title: "Peran Diperbarui",
-        description: `Peran pengguna telah berhasil diubah menjadi ${newRole}.`,
-      });
-    } catch (error) {
-      console.error("Error updating role:", error);
-      toast({
-        variant: "destructive",
-        title: "Gagal Memperbarui Peran",
-        description: "Terjadi kesalahan. Silakan coba lagi.",
-      });
-    }
+    await updateDocumentNonBlocking(userDocRef, { role: newRole });
+    toast({
+      title: "Peran Diperbarui",
+      description: `Peran pengguna telah berhasil diubah menjadi ${newRole}.`,
+    });
   };
 
   const handleDeleteUser = async (userId: string) => {
     if (!firestore) return;
     const userDocRef = doc(firestore, "users", userId);
-    try {
-      await deleteDocumentNonBlocking(userDocRef);
-      toast({
-        title: "Pengguna Dihapus",
-        description: "Pengguna telah berhasil dihapus dari sistem.",
-      });
-    } catch (error) {
-      console.error("Error deleting user:", error);
-      toast({
-        variant: "destructive",
-        title: "Gagal Menghapus Pengguna",
-        description: "Terjadi kesalahan. Silakan coba lagi.",
-      });
-    } finally {
-        setUserToDelete(null);
-    }
+    await deleteDocumentNonBlocking(userDocRef);
+    toast({
+      title: "Pengguna Dihapus",
+      description: "Pengguna telah berhasil dihapus dari sistem.",
+    });
+    setUserToDelete(null);
   };
 
-  const isSuperAdmin = users?.find(u => u.id === currentUser?.uid)?.role === 'Super Admin';
+  const isSuperAdmin = currentUserData?.role === 'Super Admin';
 
   const canEdit = (targetUser: User) => {
-    if (!currentUser) return false;
+    if (!currentUserData) return false;
     // Cannot edit self
-    if (targetUser.id === currentUser.uid) return false;
+    if (targetUser.id === currentUserData.id) return false;
     // Super Admin can edit anyone
     if (isSuperAdmin) return true;
-    // Admin cannot edit Super Admins
-    if (targetUser.role === 'Super Admin') return false;
+    // Admin cannot edit Super Admins or other Admins
+    if (targetUser.role === 'Super Admin' || targetUser.role === 'Admin') return false;
     return true;
+  }
+  
+  const canDelete = (targetUser: User) => {
+    if (!currentUserData) return false;
+     // Cannot delete self
+    if (targetUser.id === currentUserData.id) return false;
+    // Super Admin can delete anyone except themself
+    if (isSuperAdmin) return true;
+    // Admins can only delete Users
+    if (currentUserData.role === 'Admin' && targetUser.role === 'User') return true;
+
+    return false;
   }
 
   return (
@@ -189,37 +183,39 @@ export default function AdminUsersPage() {
                     <Badge variant={user.role === 'Admin' || user.role === 'Super Admin' ? 'destructive' : 'secondary'}>{user.role || 'User'}</Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  {canEdit(user) && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" disabled={!canEdit(user) && !canDelete(user)}>
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuSub>
-                          <DropdownMenuSubTrigger>Ubah Peran</DropdownMenuSubTrigger>
-                          <DropdownMenuPortal>
-                             <DropdownMenuSubContent>
-                                {roles.map((role) => (
-                                  <DropdownMenuItem 
-                                    key={role}
-                                    disabled={(role === 'Super Admin' && !isSuperAdmin) || user.role === role}
-                                    onSelect={() => handleRoleChange(user.id, role)}
-                                  >
-                                    Jadikan {role}
-                                  </DropdownMenuItem>
-                                ))}
-                              </DropdownMenuSubContent>
-                          </DropdownMenuPortal>
-                        </DropdownMenuSub>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onSelect={() => setUserToDelete(user)} className="text-red-600">
-                          Hapus Pengguna
-                        </DropdownMenuItem>
+                        {canEdit(user) && (
+                          <DropdownMenuSub>
+                            <DropdownMenuSubTrigger>Ubah Peran</DropdownMenuSubTrigger>
+                            <DropdownMenuPortal>
+                              <DropdownMenuSubContent>
+                                  {roles.map((role) => (
+                                    <DropdownMenuItem 
+                                      key={role}
+                                      disabled={(role === 'Super Admin' && !isSuperAdmin) || user.role === role}
+                                      onSelect={() => handleRoleChange(user.id, role)}
+                                    >
+                                      Jadikan {role}
+                                    </DropdownMenuItem>
+                                  ))}
+                                </DropdownMenuSubContent>
+                            </DropdownMenuPortal>
+                          </DropdownMenuSub>
+                        )}
+                        {canEdit(user) && canDelete(user) && <DropdownMenuSeparator />}
+                        {canDelete(user) && (
+                          <DropdownMenuItem onSelect={() => setUserToDelete(user)} className="text-red-600">
+                            Hapus Pengguna
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  )}
                 </TableCell>
               </TableRow>
             )) : !isLoading && (
