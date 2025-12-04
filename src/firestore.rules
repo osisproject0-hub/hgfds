@@ -77,8 +77,10 @@ service cloud.firestore {
     //----------------------------------------------------------------------
 
     match /users/{userId} {
-      // Any authenticated user can get any user's data and list all users (for the admin panel)
-      allow get, list: if isSignedIn();
+      // A user can get their own data, and Admins can get any user's data.
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      // Only Admins can list all users.
+      allow list: if isAdmin();
       
       // Allow user creation for anyone (signup).
       allow create: if true;
@@ -87,7 +89,7 @@ service cloud.firestore {
       // An Admin can update any user's displayName and photoURL.
       // A Super Admin can update any user's displayName, photoURL, and role.
       // No one can change their own role.
-      allow update: if (request.auth.uid == userId && !('role' in request.resource.data.keys())) ||
+      allow update: if (isSignedIn() && request.auth.uid == userId && !('role' in request.resource.data.keys())) ||
                       (isAdmin() && !isSuperAdmin() && !('role' in request.resource.data.keys())) ||
                       isSuperAdmin();
       
