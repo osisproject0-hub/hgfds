@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -15,7 +16,7 @@ import {
 } from "@/components/ui/sidebar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { BookHeart, LogOut } from 'lucide-react'
-import { adminNavLinks } from "@/lib/placeholder-data"
+import { adminNavLinks } from "./nav"
 import { Button } from "@/components/ui/button"
 import AdminHeader from "@/components/admin/AdminHeader"
 import { useAuth, useUser } from "@/firebase"
@@ -41,6 +42,7 @@ export default function AdminLayout({
 
 
   const handleLogout = async () => {
+    if (!auth) return;
     try {
       await signOut(auth)
       toast({

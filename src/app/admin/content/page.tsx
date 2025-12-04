@@ -10,6 +10,7 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import ProgramsTab from "./programs/page"
+import NewsTab from "./news/page"
 
 export default function AdminContentPage() {
     return (
@@ -41,7 +42,7 @@ export default function AdminContentPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p>Fitur untuk mengelola berita dan acara akan segera hadir.</p>
+                        <NewsTab />
                     </CardContent>
                 </Card>
             </TabsContent>

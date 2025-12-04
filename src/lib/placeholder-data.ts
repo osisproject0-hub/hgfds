@@ -1,3 +1,4 @@
+
 import type { ImagePlaceholder } from '@/lib/placeholder-images';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import {
@@ -9,11 +10,6 @@ import {
   Users,
   Award,
   BookOpen,
-  LayoutDashboard,
-  Newspaper,
-  Image as ImageIcon,
-  Users2,
-  Settings,
 } from 'lucide-react';
 
 const findImage = (id: string): ImagePlaceholder => {
@@ -34,9 +30,9 @@ export const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'Tentang Kami' },
   { href: '/programs', label: 'Program' },
-  { href: '/admissions', label: 'Penerimaan' },
+  { href: '/news', label: 'Berita' },
   { href: '/gallery', label: 'Galeri' },
-  { href: '/news', label: 'Berita & Acara' },
+  { href: '/admissions', label: 'Penerimaan' },
   { href: '/contact', label: 'Kontak' },
 ];
 
@@ -115,15 +111,6 @@ export const newsAndEvents = [
     image: findImage('news-3'),
   },
 ]
-
-export const adminNavLinks = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/content', label: 'Content', icon: Newspaper },
-  { href: '/admin/admissions', label: 'Admissions', icon: GraduationCap },
-  { href: '/admin/gallery', label: 'Gallery', icon: ImageIcon },
-  { href: '/admin/users', label: 'Users', icon: Users2 },
-  { href: '/admin/settings', label: 'Settings', icon: Settings },
-];
 
 export const adminOverviewData = [
     { title: "Total Students", value: "1,200", change: "+5%", icon: Users },

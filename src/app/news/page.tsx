@@ -1,0 +1,108 @@
+
+"use client"
+
+import Image from "next/image"
+import { PlaceHolderImages } from "@/lib/placeholder-images"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
+import { collection, query, orderBy } from "firebase/firestore"
+import { Skeleton } from "@/components/ui/skeleton"
+import { format } from "date-fns"
+import { id } from "date-fns/locale"
+
+type NewsArticle = {
+  id: string;
+  title: string;
+  content: string;
+  author: string;
+  publicationDate: any; // Firestore timestamp
+  imageUrl: string;
+};
+
+export default function NewsPage() {
+    const heroImage = PlaceHolderImages.find(img => img.id === 'news-1');
+    
+    const firestore = useFirestore();
+    const articlesQuery = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return query(collection(firestore, "newsArticles"), orderBy("publicationDate", "desc"));
+    }, [firestore]);
+
+    const { data: articles, isLoading } = useCollection<NewsArticle>(articlesQuery);
+
+    return (
+        <div className="bg-background text-foreground">
+            {/* Hero Section */}
+            <section className="relative h-64 md:h-80 w-full flex items-center justify-center text-center text-white">
+                {heroImage && (
+                    <Image
+                        src={heroImage.imageUrl}
+                        alt={heroImage.description}
+                        fill
+                        className="object-cover"
+                        priority
+                        data-ai-hint={heroImage.imageHint}
+                    />
+                )}
+                <div className="absolute inset-0 bg-primary/60" />
+                <div className="relative z-10 p-4">
+                    <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl font-headline">
+                        Berita & Acara
+                    </h1>
+                    <p className="mt-2 max-w-2xl mx-auto text-lg text-primary-foreground/90">
+                        Ikuti terus informasi dan kegiatan terbaru dari sekolah kami.
+                    </p>
+                </div>
+            </section>
+
+            {/* Main Content */}
+            <main className="container mx-auto px-4 md:px-6 py-12 md:py-20">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                     {isLoading && Array.from({ length: 3 }).map((_, i) => (
+                        <Card key={i} className="overflow-hidden">
+                           <Skeleton className="h-56 w-full" />
+                           <CardHeader>
+                               <Skeleton className="h-4 w-1/3" />
+                               <Skeleton className="h-6 w-full mt-2" />
+                               <Skeleton className="h-4 w-5/6 mt-1" />
+                           </CardHeader>
+                           <CardContent>
+                               <Skeleton className="h-4 w-full" />
+                               <Skeleton className="h-4 w-full mt-2" />
+                               <Skeleton className="h-4 w-3/4 mt-2" />
+                           </CardContent>
+                        </Card>
+                     ))}
+                     {articles?.map(article => (
+                        <Card key={article.id} className="flex flex-col overflow-hidden transition-shadow hover:shadow-lg">
+                           <div className="relative h-56 w-full">
+                               <Image 
+                                   src={article.imageUrl || "https://picsum.photos/seed/news/600/400"} 
+                                   alt={`Gambar untuk ${article.title}`}
+                                   fill
+                                   className="object-cover"
+                                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                               />
+                           </div>
+                           <CardHeader>
+                               <CardDescription>
+                                   {article.publicationDate ? format(new Date(article.publicationDate.seconds * 1000), "dd MMMM yyyy", { locale: id }) : ''}
+                               </CardDescription>
+                               <CardTitle className="text-xl font-headline text-primary">{article.title}</CardTitle>
+                           </CardHeader>
+                           <CardContent className="flex-grow">
+                               <p className="text-sm text-muted-foreground line-clamp-3">{article.content}</p>
+                           </CardContent>
+                       </Card>
+                     ))}
+                </div>
+
+                 {!isLoading && articles?.length === 0 && (
+                    <div className="text-center py-16 text-muted-foreground col-span-full">
+                        <p>Belum ada berita atau acara yang dipublikasikan.</p>
+                    </div>
+                )}
+            </main>
+        </div>
+    )
+}
