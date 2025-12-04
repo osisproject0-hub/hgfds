@@ -17,6 +17,8 @@ export default function AdmissionsPage() {
     const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore])
     const { data: settings, isLoading } = useDoc<SiteSettings>(settingsDocRef)
 
+    const heroImage = settings?.admissionsHeroImageUrl || "https://picsum.photos/seed/admissions-hero/1200/400";
+
     const RequirementsSkeleton = () => (
          <Card>
             <CardHeader>
@@ -57,7 +59,7 @@ export default function AdmissionsPage() {
             {/* Hero Section */}
             <section className="relative h-64 md:h-80 w-full flex items-center justify-center text-center text-white">
                 <Image
-                    src="https://picsum.photos/seed/admissions-hero/1200/400"
+                    src={heroImage}
                     alt="Siswa tersenyum gembira"
                     fill
                     className="object-cover"
@@ -174,3 +176,5 @@ export default function AdmissionsPage() {
         </div>
     )
 }
+
+    

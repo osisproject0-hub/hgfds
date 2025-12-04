@@ -331,6 +331,41 @@
             "type": "string",
             "description": "The URL for the announcement banner link.",
             "format": "uri"
+        },
+        "heroImageUrl": {
+          "type": "string",
+          "description": "URL for the main hero image on the homepage.",
+          "format": "uri"
+        },
+        "aboutPreviewImageUrl": {
+            "type": "string",
+            "description": "URL for the about preview image on the homepage.",
+            "format": "uri"
+        },
+        "aboutHeroImageUrl": {
+            "type": "string",
+            "description": "URL for the hero image on the about page.",
+            "format": "uri"
+        },
+        "programsHeroImageUrl": {
+            "type": "string",
+            "description": "URL for the hero image on the programs page.",
+            "format": "uri"
+        },
+        "admissionsHeroImageUrl": {
+            "type": "string",
+            "description": "URL for the hero image on the admissions page.",
+            "format": "uri"
+        },
+        "newsHeroImageUrl": {
+            "type": "string",
+            "description": "URL for the hero image on the news page.",
+            "format": "uri"
+        },
+        "galleryHeroImageUrl": {
+            "type": "string",
+            "description": "URL for the hero image on the gallery page.",
+            "format": "uri"
         }
       },
       "required": [

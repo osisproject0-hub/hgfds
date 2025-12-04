@@ -14,6 +14,7 @@ export default function AboutPreview() {
   const firestore = useFirestore();
   const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore]);
   const { data: settings, isLoading } = useDoc<SiteSettings>(settingsDocRef);
+  const aboutImage = settings?.aboutPreviewImageUrl || "https://picsum.photos/seed/about-preview/600/450";
 
   return (
     <section className="bg-secondary py-16 lg:py-24">
@@ -50,7 +51,7 @@ export default function AboutPreview() {
           </div>
           <div className="relative h-80 w-full lg:h-[450px] rounded-xl overflow-hidden shadow-lg">
             <Image
-                src="https://picsum.photos/seed/about-preview/600/450"
+                src={aboutImage}
                 alt="Gedung sekolah dari depan"
                 fill
                 className="object-cover"
@@ -63,3 +64,5 @@ export default function AboutPreview() {
     </section>
   );
 }
+
+    

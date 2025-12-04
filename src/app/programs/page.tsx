@@ -4,10 +4,12 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
-import { collection, query } from "firebase/firestore"
+import { useCollection, useFirestore, useMemoFirebase, useDoc } from "@/firebase"
+import { collection, query, doc } from "firebase/firestore"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
+import type { SiteSettings } from "@/app/admin/settings/page"
+
 
 type Program = {
   id: string;
@@ -24,14 +26,20 @@ export default function ProgramsPage() {
         return query(collection(firestore, "vocationalPrograms"));
     }, [firestore]);
 
+    const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore]);
+    const { data: settings } = useDoc<SiteSettings>(settingsDocRef);
+
     const { data: programs, isLoading } = useCollection<Program>(programsQuery);
+    
+    const heroImage = settings?.programsHeroImageUrl || "https://picsum.photos/seed/programs-hero/1200/400";
+
 
     return (
         <div className="bg-background text-foreground">
             {/* Hero Section */}
             <section className="relative h-64 md:h-80 w-full flex items-center justify-center text-center text-white">
                 <Image
-                    src="https://picsum.photos/seed/programs-hero/1200/400"
+                    src={heroImage}
                     alt="Siswa di bengkel kerja"
                     fill
                     className="object-cover"
@@ -117,3 +125,5 @@ export default function ProgramsPage() {
         </div>
     )
 }
+
+    

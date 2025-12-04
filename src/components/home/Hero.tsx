@@ -15,10 +15,12 @@ export default function Hero() {
   const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore]);
   const { data: settings, isLoading } = useDoc<SiteSettings>(settingsDocRef);
 
+  const heroImage = settings?.heroImageUrl || "https://picsum.photos/seed/hero/1200/800";
+
   return (
     <section className="relative h-[80vh] min-h-[600px] w-full flex items-center justify-center text-center text-white">
       <Image
-          src="https://picsum.photos/seed/hero/1200/800"
+          src={heroImage}
           alt="Latar belakang hero dengan siswa yang belajar"
           fill
           className="object-cover"
@@ -58,3 +60,5 @@ export default function Hero() {
     </section>
   );
 }
+
+    

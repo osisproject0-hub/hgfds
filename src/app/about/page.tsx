@@ -12,6 +12,8 @@ export default function AboutPage() {
     const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore])
     const { data: settings, isLoading } = useDoc<SiteSettings>(settingsDocRef)
     
+    const heroImage = settings?.aboutHeroImageUrl || "https://picsum.photos/seed/about-hero/1200/400";
+    
     const VisionSkeleton = () => (
         <div className="bg-secondary p-8 rounded-lg shadow-sm">
             <Skeleton className="h-8 w-24 mb-4" />
@@ -40,7 +42,7 @@ export default function AboutPage() {
             {/* Hero Section */}
             <section className="relative h-64 md:h-80 w-full flex items-center justify-center text-center text-white">
                 <Image
-                    src="https://picsum.photos/seed/about-hero/1200/400"
+                    src={heroImage}
                     alt="Gedung sekolah dari luar"
                     fill
                     className="object-cover"
@@ -129,3 +131,5 @@ export default function AboutPage() {
         </div>
     )
 }
+
+    

@@ -45,6 +45,13 @@ const formSchema = z.object({
   statsGraduationRate: z.coerce.number().min(0).max(100, "Tingkat kelulusan harus antara 0 dan 100."),
   announcementText: z.string().optional(),
   announcementLink: z.string().url({ message: "URL tidak valid." }).optional().or(z.literal('')),
+  heroImageUrl: z.string().url({message: "URL tidak valid."}).optional().or(z.literal('')),
+  aboutPreviewImageUrl: z.string().url({message: "URL tidak valid."}).optional().or(z.literal('')),
+  aboutHeroImageUrl: z.string().url({message: "URL tidak valid."}).optional().or(z.literal('')),
+  programsHeroImageUrl: z.string().url({message: "URL tidak valid."}).optional().or(z.literal('')),
+  admissionsHeroImageUrl: z.string().url({message: "URL tidak valid."}).optional().or(z.literal('')),
+  newsHeroImageUrl: z.string().url({message: "URL tidak valid."}).optional().or(z.literal('')),
+  galleryHeroImageUrl: z.string().url({message: "URL tidak valid."}).optional().or(z.literal('')),
 })
 
 export type SiteSettings = z.infer<typeof formSchema>;
@@ -80,6 +87,13 @@ export default function AdminSettingsPage() {
       statsGraduationRate: 0,
       announcementText: "",
       announcementLink: "",
+      heroImageUrl: "https://picsum.photos/seed/hero/1200/800",
+      aboutPreviewImageUrl: "https://picsum.photos/seed/about-preview/600/450",
+      aboutHeroImageUrl: "https://picsum.photos/seed/about-hero/1200/400",
+      programsHeroImageUrl: "https://picsum.photos/seed/programs-hero/1200/400",
+      admissionsHeroImageUrl: "https://picsum.photos/seed/admissions-hero/1200/400",
+      newsHeroImageUrl: "https://picsum.photos/seed/news-hero/1200/400",
+      galleryHeroImageUrl: "https://picsum.photos/seed/gallery-hero/1200/400",
     }
   })
 
@@ -137,11 +151,12 @@ export default function AdminSettingsPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                <Tabs defaultValue="general">
-                  <TabsList className="grid w-full grid-cols-4 mb-6">
+                  <TabsList className="grid w-full grid-cols-5 mb-6">
                     <TabsTrigger value="general">Umum</TabsTrigger>
                     <TabsTrigger value="homepage">Halaman Depan</TabsTrigger>
                     <TabsTrigger value="about">Tentang Kami</TabsTrigger>
                     <TabsTrigger value="admissions">Penerimaan</TabsTrigger>
+                    <TabsTrigger value="images">Gambar Situs</TabsTrigger>
                   </TabsList>
                   <TabsContent value="general" className="space-y-6 max-w-2xl">
                      <FormField
@@ -420,7 +435,99 @@ export default function AdminSettingsPage() {
                            <PlusCircle className="mr-2 h-4 w-4" /> Tambah FAQ
                         </Button>
                       </div>
-
+                  </TabsContent>
+                  <TabsContent value="images" className="space-y-6 max-w-2xl">
+                     <FormField
+                        control={form.control}
+                        name="heroImageUrl"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>URL Gambar Hero Halaman Utama</FormLabel>
+                            <FormControl>
+                              <Input placeholder="https://picsum.photos/seed/hero/1200/800" {...field} disabled={isPending} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                       <FormField
+                        control={form.control}
+                        name="aboutPreviewImageUrl"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>URL Gambar Pratinjau "Tentang Kami"</FormLabel>
+                            <FormControl>
+                              <Input placeholder="https://picsum.photos/seed/about-preview/600/450" {...field} disabled={isPending} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                       <FormField
+                        control={form.control}
+                        name="aboutHeroImageUrl"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>URL Gambar Hero Halaman "Tentang Kami"</FormLabel>
+                            <FormControl>
+                              <Input placeholder="https://picsum.photos/seed/about-hero/1200/400" {...field} disabled={isPending} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="programsHeroImageUrl"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>URL Gambar Hero Halaman "Program"</FormLabel>
+                            <FormControl>
+                              <Input placeholder="https://picsum.photos/seed/programs-hero/1200/400" {...field} disabled={isPending} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="admissionsHeroImageUrl"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>URL Gambar Hero Halaman "Penerimaan"</FormLabel>
+                            <FormControl>
+                              <Input placeholder="https://picsum.photos/seed/admissions-hero/1200/400" {...field} disabled={isPending} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="newsHeroImageUrl"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>URL Gambar Hero Halaman "Berita"</FormLabel>
+                            <FormControl>
+                              <Input placeholder="https://picsum.photos/seed/news-hero/1200/400" {...field} disabled={isPending} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                       <FormField
+                        control={form.control}
+                        name="galleryHeroImageUrl"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>URL Gambar Hero Halaman "Galeri"</FormLabel>
+                            <FormControl>
+                              <Input placeholder="https://picsum.photos/seed/gallery-hero/1200/400" {...field} disabled={isPending} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                   </TabsContent>
                </Tabs>
                <Button type="submit" disabled={isPending} className="mt-8">

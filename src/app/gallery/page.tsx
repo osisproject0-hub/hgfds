@@ -4,9 +4,11 @@
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
-import { collection, query } from "firebase/firestore"
+import { useCollection, useFirestore, useMemoFirebase, useDoc } from "@/firebase"
+import { collection, query, doc } from "firebase/firestore"
 import { Skeleton } from "@/components/ui/skeleton"
+import type { SiteSettings } from "@/app/admin/settings/page"
+
 
 type GalleryAlbum = {
     id: string;
@@ -22,7 +24,12 @@ export default function GalleryPage() {
         return query(collection(firestore, "galleryAlbums"));
     }, [firestore]);
 
+    const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore]);
+    const { data: settings } = useDoc<SiteSettings>(settingsDocRef);
+
     const { data: albums, isLoading } = useCollection<GalleryAlbum>(albumsQuery);
+    
+    const heroImage = settings?.galleryHeroImageUrl || "https://picsum.photos/seed/gallery-hero/1200/400";
     
     const allImages = albums?.flatMap(album => 
         album.imageUrls.map(url => ({
@@ -119,3 +126,5 @@ export default function GalleryPage() {
         </div>
     )
 }
+
+    

@@ -4,13 +4,14 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
-import { collection, query, orderBy } from "firebase/firestore"
+import { useCollection, useFirestore, useMemoFirebase, useDoc } from "@/firebase"
+import { collection, query, orderBy, doc } from "firebase/firestore"
 import { Skeleton } from "@/components/ui/skeleton"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
+import type { SiteSettings } from "@/app/admin/settings/page"
 
 type NewsArticle = {
   id: string;
@@ -28,14 +29,19 @@ export default function NewsPage() {
         return query(collection(firestore, "newsArticles"), orderBy("publicationDate", "desc"));
     }, [firestore]);
 
+    const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore]);
+    const { data: settings } = useDoc<SiteSettings>(settingsDocRef);
+
     const { data: articles, isLoading } = useCollection<NewsArticle>(articlesQuery);
+
+    const heroImage = settings?.newsHeroImageUrl || "https://picsum.photos/seed/news-hero/1200/400";
 
     return (
         <div className="bg-background text-foreground">
             {/* Hero Section */}
             <section className="relative h-64 md:h-80 w-full flex items-center justify-center text-center text-white">
                 <Image
-                    src="https://picsum.photos/seed/news-hero/1200/400"
+                    src={heroImage}
                     alt="Acara sekolah"
                     fill
                     className="object-cover"
@@ -116,3 +122,5 @@ export default function NewsPage() {
         </div>
     )
 }
+
+    
