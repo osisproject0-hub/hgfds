@@ -15,18 +15,22 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
     function isAdmin() {
       return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-             (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['Admin', 'Super Admin']);
+             (getUserRole() == 'Admin' || getUserRole() == 'Super Admin');
     }
 
     function isSuperAdmin() {
       return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Super Admin';
+             getUserRole() == 'Super Admin';
     }
     
     function isFirstUser() {
-      // This is a secure way to check for the first user during user creation.
+      // Secure way to check for the first user during their own user document creation.
       return !exists(/databases/$(database)/documents/users);
     }
     
@@ -66,8 +70,9 @@ service cloud.firestore {
 
     match /contactMessages/{contactMessageId} {
       allow create: if true;
+      // Admins can get and list messages.
       allow get, list: if isAdmin();
-      // Make messages immutable after creation.
+      // Make messages immutable after creation by anyone else.
       allow update, delete: if false; 
     }
 
@@ -77,19 +82,17 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow get: if isOwner(userId) || isAdmin();
-      // Allow both Admin and Super Admin to list users.
-      allow list: if isAdmin();
+      allow list: if isAdmin(); // Allow both Admin and Super Admin to list users.
       
       // Allow user creation.
-      // Anyone can create a user document for themselves, but the role is protected.
-      // The role is set to 'Super Admin' for the first user, and 'User' for subsequent users.
+      // Anyone can create their own user document.
+      // The `isFirstUser()` check within the `role` validation ensures only the first user can become Super Admin.
       allow create: if isOwner(userId) && 
                       (request.resource.data.role == 'Super Admin' ? isFirstUser() : request.resource.data.role == 'User');
                       
       // A user can update their own displayName and photoURL, but not their role.
       allow update: if isOwner(userId) && 
-                      !('role' in request.resource.data.keys()) &&
-                      request.resource.data.keys().hasAny(['displayName', 'photoURL']);
+                      !('role' in request.resource.data.keys());
       
       // Only a Super Admin can change other users' roles or delete users.
       allow update, delete: if isSuperAdmin(); 
