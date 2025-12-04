@@ -52,6 +52,14 @@ type Program = {
   name: string;
 }
 
+const statusLabels: Record<ApplicationStatus, string> = {
+  pending: "Menunggu",
+  reviewed: "Ditinjau",
+  accepted: "Diterima",
+  rejected: "Ditolak",
+};
+
+
 export default function AdminAdmissionsPage() {
   const firestore = useFirestore()
 
@@ -88,28 +96,28 @@ export default function AdminAdmissionsPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>All Applications</CardTitle>
+        <CardTitle>Semua Pendaftaran</CardTitle>
         <CardDescription>
-          View and manage all student applications.
+          Lihat dan kelola semua pendaftaran siswa.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Applicant</TableHead>
+              <TableHead>Pendaftar</TableHead>
               <TableHead>Program</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Date</TableHead>
+              <TableHead>Tanggal</TableHead>
               <TableHead>
-                <span className="sr-only">Actions</span>
+                <span className="sr-only">Aksi</span>
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">Loading applications...</TableCell>
+                <TableCell colSpan={5} className="text-center">Memuat pendaftaran...</TableCell>
               </TableRow>
             )}
             {applications && applications.length > 0 ? applications.map((app) => (
@@ -117,7 +125,7 @@ export default function AdminAdmissionsPage() {
                 <TableCell className="font-medium">{app.firstName} {app.lastName}</TableCell>
                 <TableCell>{programMap.get(app.programId) || app.programId}</TableCell>
                 <TableCell>
-                  <Badge variant={statusVariant[app.status] ?? 'default'} className="capitalize">{app.status}</Badge>
+                  <Badge variant={statusVariant[app.status] ?? 'default'} className="capitalize">{statusLabels[app.status]}</Badge>
                 </TableCell>
                 <TableCell>{app.applicationDate ? format(new Date(app.applicationDate.seconds * 1000), "yyyy-MM-dd") : 'N/A'}</TableCell>
                 <TableCell>
@@ -125,13 +133,13 @@ export default function AdminAdmissionsPage() {
                     <DropdownMenuTrigger asChild>
                       <Button aria-haspopup="true" size="icon" variant="ghost">
                         <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Toggle menu</span>
+                        <span className="sr-only">Buka menu</span>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       {Object.keys(statusVariant).map((status) => (
                         <DropdownMenuItem key={status} onSelect={() => handleStatusChange(app.id, status as ApplicationStatus)}>
-                          Mark as {status}
+                          Tandai sebagai {statusLabels[status as ApplicationStatus]}
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
@@ -140,7 +148,7 @@ export default function AdminAdmissionsPage() {
               </TableRow>
             )) : !isLoading && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">No applications found.</TableCell>
+                <TableCell colSpan={5} className="text-center">Tidak ada pendaftaran ditemukan.</TableCell>
               </TableRow>
             )}
           </TableBody>

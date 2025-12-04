@@ -32,12 +32,21 @@ const statusVariant = {
     rejected: "destructive",
 } as const;
 
+type ApplicationStatus = keyof typeof statusVariant;
+
+const statusLabels: Record<ApplicationStatus, string> = {
+  pending: "Menunggu",
+  reviewed: "Ditinjau",
+  accepted: "Diterima",
+  rejected: "Ditolak",
+};
+
 type Application = {
   id: string;
   firstName: string;
   lastName: string;
   programId: string;
-  status: keyof typeof statusVariant;
+  status: ApplicationStatus;
   applicationDate: any;
 }
 
@@ -77,14 +86,14 @@ export default function RecentApplications() {
     <Card>
       <CardHeader className="flex flex-row items-center">
         <div className="grid gap-2">
-            <CardTitle>Recent Applications</CardTitle>
+            <CardTitle>Pendaftaran Terbaru</CardTitle>
             <CardDescription>
-                An overview of the latest student applications.
+                Ringkasan pendaftaran siswa terbaru.
             </CardDescription>
         </div>
         <Button asChild size="sm" className="ml-auto gap-1">
             <Link href="/admin/admissions">
-                View All
+                Lihat Semua
                 <ArrowUpRight className="h-4 w-4" />
             </Link>
         </Button>
@@ -93,16 +102,16 @@ export default function RecentApplications() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Applicant</TableHead>
+              <TableHead>Pendaftar</TableHead>
               <TableHead>Program</TableHead>
               <TableHead className="text-center">Status</TableHead>
-              <TableHead className="text-right">Date</TableHead>
+              <TableHead className="text-right">Tanggal</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">Loading applications...</TableCell>
+                <TableCell colSpan={4} className="text-center">Memuat pendaftaran...</TableCell>
               </TableRow>
             )}
             {applications && applications.length > 0 ? applications.map((app) => (
@@ -112,7 +121,7 @@ export default function RecentApplications() {
                     </TableCell>
                     <TableCell>{programMap.get(app.programId) || app.programId}</TableCell>
                     <TableCell className="text-center">
-                        <Badge variant={statusVariant[app.status] ?? 'default'} className="capitalize">{app.status.toLowerCase()}</Badge>
+                        <Badge variant={statusVariant[app.status] ?? 'default'} className="capitalize">{statusLabels[app.status]}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                        {app.applicationDate ? format(new Date(app.applicationDate.seconds * 1000), "yyyy-MM-dd") : 'N/A'}
@@ -120,7 +129,7 @@ export default function RecentApplications() {
                 </TableRow>
             )) : !isLoading && (
               <TableRow>
-                  <TableCell colSpan={4} className="text-center">No recent applications found.</TableCell>
+                  <TableCell colSpan={4} className="text-center">Tidak ada pendaftaran terbaru ditemukan.</TableCell>
               </TableRow>
             )}
           </TableBody>

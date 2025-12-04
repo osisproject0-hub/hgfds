@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Bot, User, SendHorizonal, CornerDownLeft, MessageSquare, X, Loader2 } from 'lucide-react';
+import { Bot, User, SendHorizonal, MessageSquare, X, Loader2 } from 'lucide-react';
 import { getChatbotAnswer } from './actions';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
 type Message = {
@@ -17,10 +17,10 @@ type Message = {
 };
 
 const quickQuestions = [
-  'What are the admission requirements?',
-  'What programs are available?',
-  'When does the school year start?',
-  'How do I apply?',
+  'Apa saja syarat pendaftarannya?',
+  'Program apa saja yang tersedia?',
+  'Kapan tahun ajaran dimulai?',
+  'Bagaimana cara mendaftar?',
 ];
 
 export default function Chatbot() {
@@ -63,7 +63,7 @@ export default function Chatbot() {
       <Button
         className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50"
         onClick={() => setIsOpen(true)}
-        aria-label="Open chatbot"
+        aria-label="Buka chatbot"
       >
         {isOpen ? <X className="h-8 w-8" /> : <MessageSquare className="h-8 w-8" />}
       </Button>
@@ -73,10 +73,10 @@ export default function Chatbot() {
           <SheetHeader className="p-6 pb-4 border-b">
             <SheetTitle className="flex items-center gap-3 font-headline text-xl">
               <Bot className="h-7 w-7 text-primary" />
-              AI Assistant
+              Asisten AI
             </SheetTitle>
             <SheetDescription>
-              Ask me anything about our school, programs, or admissions.
+              Tanyakan apa saja tentang sekolah, program, atau pendaftaran kami.
             </SheetDescription>
           </SheetHeader>
           <ScrollArea className="flex-1" ref={scrollAreaRef}>
@@ -84,7 +84,7 @@ export default function Chatbot() {
               {messages.length === 0 ? (
                 <div className="text-center text-sm text-muted-foreground space-y-4">
                   <div className="p-4 bg-secondary rounded-lg">
-                    <p className="font-semibold">Try asking one of these questions:</p>
+                    <p className="font-semibold">Coba ajukan salah satu pertanyaan ini:</p>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     {quickQuestions.map(q => (
@@ -133,17 +133,17 @@ export default function Chatbot() {
               <Input
                 value={inputValue}
                 onChange={e => setInputValue(e.target.value)}
-                placeholder="Type your question..."
+                placeholder="Ketik pertanyaan Anda..."
                 className="pr-12 h-12 text-base"
                 disabled={isPending}
               />
               <Button type="submit" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9" disabled={isPending || !inputValue.trim()}>
                 <SendHorizonal className="h-5 w-5" />
-                <span className="sr-only">Send</span>
+                <span className="sr-only">Kirim</span>
               </Button>
             </form>
              <p className="text-xs text-muted-foreground text-center mt-2">
-              Our AI can make mistakes. Please verify important information.
+              AI kami dapat membuat kesalahan. Harap verifikasi informasi penting.
             </p>
           </div>
         </SheetContent>

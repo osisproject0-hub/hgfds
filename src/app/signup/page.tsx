@@ -36,8 +36,8 @@ export default function AdminSignupPage() {
     if (!auth || !firestore) {
         toast({
             variant: "destructive",
-            title: "Signup Failed",
-            description: "Firebase is not initialized.",
+            title: "Gagal Mendaftar",
+            description: "Firebase belum diinisialisasi.",
         })
         return;
     }
@@ -62,27 +62,27 @@ export default function AdminSignupPage() {
         })
 
         toast({
-          title: "Signup Successful",
-          description: `Welcome, ${displayName}! Redirecting you to the admin dashboard. Note: Your role is 'User'. An admin must grant you privileges.`,
+          title: "Pendaftaran Berhasil",
+          description: `Selamat datang, ${displayName}! Mengarahkan Anda ke dasbor admin. Catatan: Peran Anda adalah 'Pengguna'. Seorang admin harus memberikan hak akses lebih lanjut.`,
         })
 
         // A small delay to allow Firestore rules to process and the user object to be updated.
         setTimeout(() => router.push("/admin"), 1000);
 
       } catch (error: any) {
-        console.error("Signup failed:", error)
-        let description = "An unexpected error occurred. Please try again."
+        console.error("Gagal mendaftar:", error)
+        let description = "Terjadi kesalahan tak terduga. Silakan coba lagi."
         if (error.code === 'auth/email-already-in-use') {
-          description = "This email is already registered. Please log in or use a different email."
+          description = "Email ini sudah terdaftar. Silakan login atau gunakan email lain."
         } else if (error.code === 'auth/weak-password') {
-          description = "The password is too weak. Please use at least 6 characters."
+          description = "Kata sandi terlalu lemah. Silakan gunakan setidaknya 6 karakter."
         } else if (error.message) {
           description = error.message;
         }
 
         toast({
           variant: "destructive",
-          title: "Signup Failed",
+          title: "Gagal Mendaftar",
           description: description,
         })
       }
@@ -94,15 +94,15 @@ export default function AdminSignupPage() {
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid w-[350px] gap-6">
           <div className="grid gap-2 text-center">
-            <h1 className="text-3xl font-bold font-headline">Create Admin Account</h1>
+            <h1 className="text-3xl font-bold font-headline">Buat Akun Admin</h1>
             <p className="text-balance text-muted-foreground">
-              Enter your details to create a new account. An existing admin must grant you privileges.
+              Masukkan detail Anda untuk membuat akun baru. Admin yang sudah ada harus memberikan hak akses.
             </p>
           </div>
           <form onSubmit={handleSignup}>
             <div className="grid gap-4">
                <div className="grid gap-2">
-                <Label htmlFor="displayName">Full Name</Label>
+                <Label htmlFor="displayName">Nama Lengkap</Label>
                 <Input
                   id="displayName"
                   type="text"
@@ -126,7 +126,7 @@ export default function AdminSignupPage() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Kata Sandi</Label>
                 <Input 
                   id="password" 
                   type="password" 
@@ -137,12 +137,12 @@ export default function AdminSignupPage() {
                 />
               </div>
               <Button type="submit" className="w-full" disabled={isPending}>
-                {isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating Account...</> : 'Sign Up'}
+                {isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Membuat Akun...</> : 'Daftar'}
               </Button>
               <div className="mt-4 text-center text-sm">
-                Already have an account?{" "}
+                Sudah punya akun?{" "}
                 <Link href="/login" className="underline">
-                  Log in
+                  Login
                 </Link>
               </div>
             </div>
@@ -152,7 +152,7 @@ export default function AdminSignupPage() {
       <div className="hidden bg-primary lg:flex lg:items-center lg:justify-center lg:flex-col lg:text-center p-12">
          <BookHeart className="h-24 w-24 text-primary-foreground mb-4" />
           <h2 className="text-4xl font-headline font-bold text-primary-foreground">SMK LPPMRI 2 Kedungreja</h2>
-          <p className="text-lg text-primary-foreground/80 mt-2">Admin Control Panel</p>
+          <p className="text-lg text-primary-foreground/80 mt-2">Panel Kontrol Admin</p>
       </div>
     </div>
   )

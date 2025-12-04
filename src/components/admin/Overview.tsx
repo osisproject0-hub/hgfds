@@ -40,10 +40,10 @@ export default function Overview() {
   const { data: messages } = useCollection(messagesQuery)
 
   const overviewData = [
-    { title: "New Applications", value: applications?.length ?? 0, icon: GraduationCap },
-    { title: "Total Users", value: users?.length ?? 0, icon: Users },
-    { title: "News Articles", value: news?.length ?? 0, icon: Newspaper },
-    { title: "Total Messages", value: messages?.length ?? 0, icon: Mail },
+    { title: "Pendaftar Baru", value: applications?.length ?? 0, icon: GraduationCap },
+    { title: "Total Pengguna", value: users?.length ?? 0, icon: Users },
+    { title: "Artikel Berita", value: news?.length ?? 0, icon: Newspaper },
+    { title: "Total Pesan", value: messages?.length ?? 0, icon: Mail },
   ]
 
   return (

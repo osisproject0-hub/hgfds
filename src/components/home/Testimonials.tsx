@@ -55,9 +55,9 @@ export default function Testimonials() {
     <section className="bg-secondary py-16 lg:py-24">
       <div className="container mx-auto px-4 md:px-6">
         <div className="mb-12 text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">What Our Community Says</h2>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">Apa Kata Komunitas Kami</h2>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-            Hear from our students, parents, and alumni about their experience.
+            Dengarkan dari siswa, orang tua, dan alumni kami tentang pengalaman mereka.
           </p>
         </div>
         <Carousel
@@ -76,7 +76,7 @@ export default function Testimonials() {
                     <CardContent className="flex flex-col items-center justify-center p-6 text-center">
                       <Image
                         src={testimonial.imageUrl || "https://picsum.photos/seed/person/100"}
-                        alt={`Photo of ${testimonial.name}`}
+                        alt={`Foto ${testimonial.name}`}
                         width={80}
                         height={80}
                         className="rounded-full mb-4 border-4 border-primary/10"

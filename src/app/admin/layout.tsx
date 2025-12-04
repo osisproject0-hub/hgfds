@@ -46,16 +46,16 @@ export default function AdminLayout({
     try {
       await signOut(auth)
       toast({
-        title: "Logged Out",
-        description: "You have been successfully logged out.",
+        title: "Berhasil Keluar",
+        description: "Anda telah berhasil keluar.",
       })
       router.push('/login')
     } catch (error) {
-      console.error("Logout failed:", error)
+      console.error("Gagal keluar:", error)
       toast({
         variant: "destructive",
-        title: "Logout Failed",
-        description: "An error occurred during logout. Please try again.",
+        title: "Gagal Keluar",
+        description: "Terjadi kesalahan saat keluar. Silakan coba lagi.",
       })
     }
   }
@@ -63,7 +63,7 @@ export default function AdminLayout({
   if (isUserLoading || !user) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <p>Loading...</p>
+        <p>Memuat...</p>
       </div>
     )
   }
@@ -76,7 +76,7 @@ export default function AdminLayout({
             <Link href="/admin" className="flex items-center gap-2" prefetch={false}>
               <BookHeart className="h-7 w-7 text-primary" />
               <span className="text-lg font-bold font-headline text-sidebar-foreground group-data-[collapsible=icon]:hidden">
-                Admin Panel
+                Panel Admin
               </span>
             </Link>
           </SidebarHeader>
@@ -108,7 +108,7 @@ export default function AdminLayout({
                 <AvatarFallback>{user?.email?.charAt(0).toUpperCase() || 'A'}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                <span className="font-semibold text-sm">{user?.displayName || 'Admin User'}</span>
+                <span className="font-semibold text-sm">{user?.displayName || 'Pengguna Admin'}</span>
                 <span className="text-xs text-sidebar-foreground/70">{user?.email}</span>
               </div>
               <Button variant="ghost" size="icon" className="ml-auto group-data-[collapsible=icon]:hidden" onClick={handleLogout}>

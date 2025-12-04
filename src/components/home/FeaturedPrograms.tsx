@@ -39,9 +39,9 @@ export default function FeaturedPrograms() {
     <section className="py-16 lg:py-24">
       <div className="container mx-auto px-4 md:px-6">
         <div className="mb-12 text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">Our Vocational Programs</h2>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">Program Kejuruan Kami</h2>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-            We offer a range of specialized programs designed to equip students with in-demand skills.
+            Kami menawarkan berbagai program khusus yang dirancang untuk membekali siswa dengan keterampilan yang paling dibutuhkan.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
@@ -87,7 +87,7 @@ export default function FeaturedPrograms() {
                     <p className="text-muted-foreground text-sm mb-6 min-h-[60px] line-clamp-3">{program.description}</p>
                     <Button variant="outline" asChild className="w-full">
                       <Link href={`/programs/${program.id}`}>
-                        Learn More <ArrowRight className="ml-2 h-4 w-4" />
+                        Pelajari Lebih Lanjut <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
                   </div>

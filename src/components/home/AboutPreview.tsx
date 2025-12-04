@@ -13,17 +13,17 @@ export default function AboutPreview() {
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
           <div className="space-y-6">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">
-              A Tradition of Excellence in Vocational Education
+              Tradisi Keunggulan dalam Pendidikan Vokasi
             </h2>
             <p className="text-lg text-muted-foreground">
-              Since our establishment, SMK LPPMRI 2 Kedungreja has been committed to providing high-quality vocational training that meets industry standards. Our vision is to produce competent, creative, and competitive graduates ready to make a difference.
+              Sejak didirikan, SMK LPPMRI 2 Kedungreja berkomitmen untuk menyediakan pelatihan vokasi berkualitas tinggi yang memenuhi standar industri. Visi kami adalah menghasilkan lulusan yang kompeten, kreatif, dan kompetitif yang siap membuat perbedaan.
             </p>
             <p className="text-muted-foreground">
-              We believe in a holistic approach to education, combining rigorous academic learning with hands-on practical experience in our state-of-the-art facilities.
+              Kami percaya pada pendekatan holistik dalam pendidikan, menggabungkan pembelajaran akademik yang ketat dengan pengalaman praktik langsung di fasilitas canggih kami.
             </p>
             <Button size="lg" asChild>
               <Link href="/about">
-                Discover Our Story <ArrowRight className="ml-2 h-5 w-5" />
+                Temukan Kisah Kami <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
           </div>

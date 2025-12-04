@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sheet"
 
 const navLinks = [
-  { href: '/', label: 'Home' },
+  { href: '/', label: 'Beranda' },
   { href: '/about', label: 'Tentang Kami' },
   { href: '/programs', label: 'Program' },
   { href: '/news', label: 'Berita' },
@@ -61,7 +61,7 @@ export default function Header() {
         </nav>
         <div className="hidden md:block">
           <Button asChild>
-            <Link href="/admissions">Apply Now</Link>
+            <Link href="/admissions">Daftar Sekarang</Link>
           </Button>
         </div>
         <div className="md:hidden">
@@ -69,7 +69,7 @@ export default function Header() {
             <SheetTrigger asChild>
               <Button variant="outline" size="icon">
                 <Menu className="h-6 w-6" />
-                <span className="sr-only">Toggle navigation menu</span>
+                <span className="sr-only">Buka menu navigasi</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="right">
@@ -93,7 +93,7 @@ export default function Header() {
                   ))}
                 </nav>
                 <Button asChild className="mt-4">
-                  <Link href="/admissions">Apply Now</Link>
+                  <Link href="/admissions">Daftar Sekarang</Link>
                 </Button>
               </div>
             </SheetContent>

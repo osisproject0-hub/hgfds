@@ -33,16 +33,16 @@ export default function AdminLoginPage() {
       try {
         await signInWithEmailAndPassword(auth, email, password)
         toast({
-          title: "Login Successful",
-          description: "Redirecting you to the admin dashboard.",
+          title: "Login Berhasil",
+          description: "Mengarahkan Anda ke dasbor admin.",
         })
         router.push("/admin")
       } catch (error: any) {
-        console.error("Login failed:", error)
+        console.error("Login gagal:", error)
         toast({
           variant: "destructive",
-          title: "Login Failed",
-          description: error.message || "Please check your credentials and try again.",
+          title: "Login Gagal",
+          description: "Silakan periksa kredensial Anda dan coba lagi.",
         })
       }
     })
@@ -53,9 +53,9 @@ export default function AdminLoginPage() {
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid w-[350px] gap-6">
           <div className="grid gap-2 text-center">
-            <h1 className="text-3xl font-bold font-headline">Admin Login</h1>
+            <h1 className="text-3xl font-bold font-headline">Login Admin</h1>
             <p className="text-balance text-muted-foreground">
-              Enter your email below to login to your account
+              Masukkan email Anda di bawah ini untuk masuk ke akun Anda
             </p>
           </div>
           <form onSubmit={handleLogin}>
@@ -74,12 +74,12 @@ export default function AdminLoginPage() {
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">Kata Sandi</Label>
                   <Link
                     href="#"
                     className="ml-auto inline-block text-sm underline"
                   >
-                    Forgot your password?
+                    Lupa kata sandi?
                   </Link>
                 </div>
                 <Input 
@@ -92,12 +92,12 @@ export default function AdminLoginPage() {
                 />
               </div>
               <Button type="submit" className="w-full" disabled={isPending}>
-                {isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logging in...</> : 'Login'}
+                {isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Masuk...</> : 'Login'}
               </Button>
                <div className="mt-4 text-center text-sm">
-                Don&apos;t have an account?{" "}
+                Belum punya akun?{" "}
                 <Link href="/signup" className="underline">
-                  Sign up
+                  Daftar
                 </Link>
               </div>
             </div>
@@ -107,7 +107,7 @@ export default function AdminLoginPage() {
       <div className="hidden bg-primary lg:flex lg:items-center lg:justify-center lg:flex-col lg:text-center p-12">
          <BookHeart className="h-24 w-24 text-primary-foreground mb-4" />
           <h2 className="text-4xl font-headline font-bold text-primary-foreground">SMK LPPMRI 2 Kedungreja</h2>
-          <p className="text-lg text-primary-foreground/80 mt-2">Admin Control Panel</p>
+          <p className="text-lg text-primary-foreground/80 mt-2">Panel Kontrol Admin</p>
       </div>
     </div>
   )

@@ -37,16 +37,16 @@ export default function AdminHeader() {
     try {
       await signOut(auth)
       toast({
-        title: "Logged Out",
-        description: "You have been successfully logged out.",
+        title: "Berhasil Keluar",
+        description: "Anda telah berhasil keluar.",
       })
       router.push('/login')
     } catch (error) {
-      console.error("Logout failed:", error)
+      console.error("Gagal keluar:", error)
       toast({
         variant: "destructive",
-        title: "Logout Failed",
-        description: "An error occurred during logout. Please try again.",
+        title: "Gagal Keluar",
+        description: "Terjadi kesalahan saat keluar. Silakan coba lagi.",
       })
     }
   }
@@ -58,7 +58,7 @@ export default function AdminHeader() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/admin">Dashboard</Link>
+              <Link href="/admin">Dasbor</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
@@ -67,7 +67,7 @@ export default function AdminHeader() {
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
-          placeholder="Search..."
+          placeholder="Cari..."
           className="w-full rounded-lg bg-secondary pl-8 md:w-[200px] lg:w-[336px]"
         />
       </div>
@@ -85,13 +85,13 @@ export default function AdminHeader() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => router.push('/admin/settings')}>Settings</DropdownMenuItem>
-          <DropdownMenuItem>Support</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => router.push('/admin/settings')}>Pengaturan</DropdownMenuItem>
+          <DropdownMenuItem>Bantuan</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={handleLogout}>
-             Logout
+             Keluar
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

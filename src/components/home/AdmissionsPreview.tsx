@@ -5,18 +5,18 @@ import { ArrowRight, FileText, UserCheck, CalendarDays } from 'lucide-react';
 const steps = [
   {
     icon: FileText,
-    title: 'Submit Application',
-    description: 'Fill out our online form and upload the required documents.',
+    title: 'Kirim Pendaftaran',
+    description: 'Isi formulir online kami dan unggah dokumen yang diperlukan.',
   },
   {
     icon: UserCheck,
-    title: 'Selection Process',
-    description: 'Our team will review your application and qualifications.',
+    title: 'Proses Seleksi',
+    description: 'Tim kami akan meninjau pendaftaran dan kualifikasi Anda.',
   },
   {
     icon: CalendarDays,
-    title: 'Announcement',
-    description: 'Check for the admission results on the announced date.',
+    title: 'Pengumuman',
+    description: 'Periksa hasil penerimaan pada tanggal yang diumumkan.',
   },
 ];
 
@@ -25,9 +25,9 @@ export default function AdmissionsPreview() {
     <section className="py-16 lg:py-24 bg-secondary">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">Join Our Community</h2>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">Bergabung dengan Komunitas Kami</h2>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-            Ready to start your journey with us? Our admission process is simple and straightforward.
+            Siap memulai perjalanan Anda bersama kami? Proses penerimaan kami sederhana dan mudah.
           </p>
         </div>
         <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
@@ -44,7 +44,7 @@ export default function AdmissionsPreview() {
         <div className="mt-12 text-center">
           <Button size="lg" asChild>
             <Link href="/admissions">
-              Start Your Application <ArrowRight className="ml-2 h-5 w-5" />
+              Mulai Pendaftaran Anda <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </Button>
         </div>

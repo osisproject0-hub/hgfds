@@ -10,6 +10,7 @@ import { ArrowRight } from 'lucide-react';
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
 import { collection, query, orderBy, limit } from "firebase/firestore"
 import { format } from 'date-fns';
+import { id as indonesiaLocale } from 'date-fns/locale';
 import { Skeleton } from '../ui/skeleton';
 
 type NewsArticle = {
@@ -34,14 +35,14 @@ export default function NewsAndEvents() {
       <div className="container mx-auto px-4 md:px-6">
         <div className="mb-12 flex flex-col items-center justify-between gap-4 text-center md:flex-row md:text-left">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">Latest News & Events</h2>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">Berita & Acara Terbaru</h2>
             <p className="mt-2 max-w-2xl text-lg text-muted-foreground">
-              Stay up-to-date with the latest happenings at our school.
+              Ikuti terus perkembangan terbaru di sekolah kami.
             </p>
           </div>
           <Button asChild variant="outline">
             <Link href="/news">
-              View All Posts <ArrowRight className="ml-2 h-4 w-4" />
+              Lihat Semua Postingan <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>
@@ -73,8 +74,8 @@ export default function NewsAndEvents() {
                   </div>
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-2">
-                       <Badge variant={post.category === 'Announcement' ? 'destructive' : 'secondary'}>{post.category || 'Berita'}</Badge>
-                       <p className="text-sm text-muted-foreground">{post.publicationDate ? format(new Date(post.publicationDate.seconds * 1000), 'MMM d, yyyy') : ''}</p>
+                       <Badge variant={post.category === 'Pengumuman' ? 'destructive' : 'secondary'}>{post.category || 'Berita'}</Badge>
+                       <p className="text-sm text-muted-foreground">{post.publicationDate ? format(new Date(post.publicationDate.seconds * 1000), 'd MMM yyyy', { locale: indonesiaLocale }) : ''}</p>
                     </div>
                     <h3 className="text-lg font-bold font-headline leading-snug group-hover:text-primary transition-colors">
                       {post.title}

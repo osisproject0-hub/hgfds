@@ -59,7 +59,7 @@ const Counter = ({ to }: { to: number }) => {
     requestAnimationFrame(counter);
   }, [to, isInView]);
 
-  return <span ref={ref}>{count.toLocaleString()}</span>;
+  return <span ref={ref}>{count.toLocaleString('id-ID')}</span>;
 };
 
 export default function Stats() {
@@ -70,10 +70,10 @@ export default function Stats() {
   const { data: programs } = useCollection(programsQuery);
 
   const schoolStats = [
-    { value: 1200, label: 'Students', icon: GraduationCap },
-    { value: 50, label: 'Expert Teachers', icon: Users },
-    { value: 95, label: 'Graduation Rate (%)', icon: Award },
-    { value: programs?.length || 4, label: 'Vocational Programs', icon: BookOpen },
+    { value: 1200, label: 'Siswa', icon: GraduationCap },
+    { value: 50, label: 'Guru Ahli', icon: Users },
+    { value: 95, label: 'Tingkat Kelulusan (%)', icon: Award },
+    { value: programs?.length || 4, label: 'Program Kejuruan', icon: BookOpen },
   ];
 
   return (

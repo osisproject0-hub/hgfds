@@ -5,7 +5,7 @@ import { chatbotAnswersAdmissionQuestions } from '@/ai/flows/chatbot-answers-adm
 
 export async function getChatbotAnswer(question: string) {
   try {
-    const admissionKeywords = ['admission', 'register', 'apply', 'enroll', 'pendaftaran', 'daftar'];
+    const admissionKeywords = ['admission', 'register', 'apply', 'enroll', 'pendaftaran', 'daftar', 'syarat', 'biaya'];
     const lowerCaseQuestion = question.toLowerCase();
 
     // A simple "tool use" logic to decide which flow to call
@@ -18,6 +18,6 @@ export async function getChatbotAnswer(question: string) {
     }
   } catch (error) {
     console.error("Error getting chatbot answer:", error);
-    return "I'm sorry, but I'm having trouble connecting to my brain right now. Please try again later.";
+    return "Maaf, saya sedang mengalami kesulitan untuk terhubung. Silakan coba lagi nanti.";
   }
 }

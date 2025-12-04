@@ -23,19 +23,19 @@ export default function Hero() {
       <div className="absolute inset-0 bg-primary/40" />
       <div className="relative z-10 flex flex-col items-center gap-6 p-4">
         <h1 className="text-4xl font-extrabold tracking-tight md:text-6xl lg:text-7xl font-headline">
-          Building Future Professionals
+          Membangun Profesional Masa Depan
         </h1>
         <p className="max-w-3xl text-lg md:text-xl text-primary-foreground/90">
-          Welcome to SMK LPPMRI 2 Kedungreja, where we nurture talent and skill for a successful career in the vocational world.
+          Selamat datang di SMK LPPMRI 2 Kedungreja, tempat kami membina bakat dan keterampilan untuk karir yang sukses di dunia kejuruan.
         </p>
         <div className="flex flex-col gap-4 sm:flex-row">
           <Button size="lg" asChild>
             <Link href="/programs">
-              Explore Our Programs <ArrowRight className="ml-2 h-5 w-5" />
+              Jelajahi Program Kami <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </Button>
           <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-primary">
-            <PlayCircle className="mr-2 h-5 w-5" /> Watch School Tour
+            <PlayCircle className="mr-2 h-5 w-5" /> Tonton Tur Sekolah
           </Button>
         </div>
       </div>
