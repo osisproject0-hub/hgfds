@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "VocationalProgram": {
@@ -22,13 +23,18 @@
           "type": "string",
           "description": "URL of an image representing the program.",
           "format": "uri"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Name of the Lucide icon for the program."
         }
       },
       "required": [
         "name",
         "description",
         "careerProspects",
-        "imageUrl"
+        "imageUrl",
+        "icon"
       ]
     },
     "NewsArticle": {
@@ -58,13 +64,19 @@
           "type": "string",
           "description": "URL of an image associated with the news article.",
           "format": "uri"
+        },
+        "category": {
+            "type": "string",
+            "description": "Category of the news article.",
+            "enum": ["Berita", "Pengumuman", "Acara"]
         }
       },
       "required": [
         "title",
         "content",
         "author",
-        "publicationDate"
+        "publicationDate",
+        "category"
       ]
     },
     "GalleryAlbum": {
@@ -458,5 +470,3 @@
     ]
   }
 }
-
-    

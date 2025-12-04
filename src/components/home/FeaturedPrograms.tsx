@@ -3,28 +3,32 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, LucideProps } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
 import { collection, query, limit } from "firebase/firestore"
 import { Skeleton } from '../ui/skeleton';
-import { Wrench, Calculator, Camera, LineChart } from 'lucide-react';
 
-const iconMap: { [key: string]: React.ElementType } = {
-  'Teknik Mesin': Wrench,
-  'Akuntansi': Calculator,
-  'Multimedia': Camera,
-  'Pemasaran': LineChart,
-  'default': Wrench,
-};
 
 type Program = {
   id: string;
   name: string;
   description: string;
   imageUrl: string;
+  icon: string;
 }
+
+const Icon = ({ name, ...props }: { name: string } & LucideProps) => {
+    const LucideIcon = (LucideIcons as any)[name];
+    if (!LucideIcon) {
+      // Return a default icon or null if the icon name is not valid
+      return <LucideIcons.Wrench {...props} />;
+    }
+    return <LucideIcon {...props} />;
+};
+
 
 export default function FeaturedPrograms() {
   const firestore = useFirestore();
@@ -60,9 +64,8 @@ export default function FeaturedPrograms() {
              </Card>
           ))}
           {programs && programs.map((program) => {
-            const ProgramIcon = iconMap[program.name] || iconMap.default;
             return (
-              <Card key={program.id} className="overflow-hidden group transition-all hover:shadow-xl hover:-translate-y-1">
+              <Card key={program.id} className="group overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1">
                 <CardContent className="p-0">
                   <Link href={`/programs/${program.id}`} className="block">
                     <div className="relative h-48 w-full">
@@ -78,7 +81,7 @@ export default function FeaturedPrograms() {
                   <div className="p-6">
                     <div className="flex items-center gap-4 mb-4">
                       <div className="bg-primary/10 text-primary p-3 rounded-full">
-                        <ProgramIcon className="h-6 w-6" />
+                        <Icon name={program.icon} className="h-6 w-6" />
                       </div>
                       <h3 className="text-xl font-bold font-headline">
                          <Link href={`/programs/${program.id}`}>{program.name}</Link>

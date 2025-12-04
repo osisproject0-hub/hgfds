@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -27,6 +28,7 @@ const formSchema = z.object({
   description: z.string().min(10, { message: "Deskripsi harus memiliki setidaknya 10 karakter." }),
   careerProspects: z.string().min(10, { message: "Prospek karir harus memiliki setidaknya 10 karakter." }),
   imageUrl: z.string().url({ message: "URL gambar tidak valid." }),
+  icon: z.string().min(2, { message: "Nama ikon harus valid (contoh: Wrench)." }),
 })
 
 interface ProgramFormProps {
@@ -46,6 +48,7 @@ export function ProgramForm({ program, onSave }: ProgramFormProps) {
       description: "",
       careerProspects: "",
       imageUrl: "https://picsum.photos/seed/program/600/400",
+      icon: "Wrench",
     },
   })
 
@@ -126,6 +129,22 @@ export function ProgramForm({ program, onSave }: ProgramFormProps) {
               <FormControl>
                 <Input placeholder="https://example.com/image.jpg" {...field} disabled={isPending} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="icon"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nama Ikon</FormLabel>
+              <FormControl>
+                <Input placeholder="cth. Wrench" {...field} disabled={isPending} />
+              </FormControl>
+              <FormDescription>
+                Masukkan nama ikon dari <a href="https://lucide.dev/icons/" target="_blank" rel="noopener noreferrer" className="underline">Lucide Icons</a>.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

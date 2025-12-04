@@ -16,7 +16,7 @@ import { Skeleton } from '../ui/skeleton';
 type NewsArticle = {
   id: string;
   title: string;
-  category?: string;
+  category: "Berita" | "Pengumuman" | "Acara";
   publicationDate: any; // Firestore timestamp
   imageUrl: string;
 };
@@ -29,6 +29,16 @@ export default function NewsAndEvents() {
   }, [firestore]);
 
   const { data: articles, isLoading } = useCollection<NewsArticle>(articlesQuery);
+
+  const getBadgeVariant = (category: NewsArticle['category']) => {
+    switch (category) {
+      case 'Pengumuman': return 'destructive';
+      case 'Acara': return 'default';
+      case 'Berita':
+      default:
+        return 'secondary';
+    }
+  }
 
   return (
     <section className="py-16 lg:py-24">
@@ -74,7 +84,7 @@ export default function NewsAndEvents() {
                   </div>
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-2">
-                       <Badge variant={post.category === 'Pengumuman' ? 'destructive' : 'secondary'}>{post.category || 'Berita'}</Badge>
+                       <Badge variant={getBadgeVariant(post.category)}>{post.category || 'Berita'}</Badge>
                        <p className="text-sm text-muted-foreground">{post.publicationDate ? format(new Date(post.publicationDate.seconds * 1000), 'd MMM yyyy', { locale: indonesiaLocale }) : ''}</p>
                     </div>
                     <h3 className="text-lg font-bold font-headline leading-snug group-hover:text-primary transition-colors">

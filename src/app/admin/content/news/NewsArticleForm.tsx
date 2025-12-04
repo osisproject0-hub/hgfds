@@ -21,11 +21,15 @@ import { Loader2 } from "lucide-react"
 import { useFirestore, useUser, addDocumentNonBlocking, setDocumentNonBlocking } from "@/firebase"
 import { collection, doc, serverTimestamp } from "firebase/firestore"
 import type { NewsArticle } from "./page"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+const newsCategories = ["Berita", "Pengumuman", "Acara"] as const;
 
 const formSchema = z.object({
   title: z.string().min(5, { message: "Judul harus memiliki setidaknya 5 karakter." }),
   content: z.string().min(20, { message: "Konten harus memiliki setidaknya 20 karakter." }),
   imageUrl: z.string().url({ message: "URL gambar tidak valid." }),
+  category: z.enum(newsCategories),
 })
 
 interface NewsArticleFormProps {
@@ -45,10 +49,12 @@ export function NewsArticleForm({ article, onSave }: NewsArticleFormProps) {
         title: article.title,
         content: article.content,
         imageUrl: article.imageUrl,
+        category: article.category,
     } : {
       title: "",
       content: "",
       imageUrl: "https://picsum.photos/seed/news/800/600",
+      category: "Berita",
     },
   })
 
@@ -98,6 +104,30 @@ export function NewsArticleForm({ article, onSave }: NewsArticleFormProps) {
               <FormControl>
                 <Input placeholder="Judul berita atau acara" {...field} disabled={isPending} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="category"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Kategori</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isPending}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih kategori" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {newsCategories.map(category => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
