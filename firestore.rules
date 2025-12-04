@@ -20,19 +20,22 @@ service cloud.firestore {
     }
 
     function isRole(role) {
-        return isSignedIn() && getUserData(request.auth.uid).role == role;
+      return isSignedIn() && getUserData(request.auth.uid).role == role;
     }
-
+    
     function isAdmin() {
-        return isSignedIn() && (isRole('Admin') || isRole('Super Admin'));
+      // Check for custom claims first, then fall back to document-based role.
+      // This is a more robust way but for now we stick to document role.
+      return isSignedIn() && (isRole('Admin') || isRole('Super Admin'));
     }
 
     function isSuperAdmin() {
         return isSignedIn() && isRole('Super Admin');
     }
 
+    // This function checks if the 'users' collection is empty.
+    // It is used to assign the 'Super Admin' role to the very first user.
     function isFirstUser() {
-      // Check if the 'users' collection exists. If not, this is the first user.
       return !exists(/databases/$(database)/documents/users);
     }
     
@@ -66,12 +69,15 @@ service cloud.firestore {
 
     match /applications/{applicationId} {
       allow create: if true;
+      // Admins can manage all applications
       allow get, list, update, delete: if isAdmin();
     }
 
     match /contactMessages/{contactMessageId} {
       allow create: if true;
+      // Only admins can read submitted messages
       allow get, list: if isAdmin();
+      // Messages are immutable by clients
       allow update, delete: if false; 
     }
 
@@ -80,13 +86,19 @@ service cloud.firestore {
     //----------------------------------------------------------------------
 
     match /users/{userId} {
+      // Users can get their own data, Admins can get any user's data
       allow get: if isOwner(userId) || isAdmin();
+      
+      // Only Admins and Super Admins can list all users
       allow list: if isAdmin();
       
       // Allow user creation.
-      // Anyone can create their own user document.
+      // The role is set based on whether this is the first user or not.
       allow create: if isOwner(userId) && 
-                      (request.resource.data.role == 'User' || (request.resource.data.role == 'Super Admin' && isFirstUser()));
+                      (
+                        (request.resource.data.role == 'Super Admin' && isFirstUser()) ||
+                        (request.resource.data.role == 'User' && !isFirstUser())
+                      );
                       
       // A user can update their own displayName and photoURL, but not their role.
       allow update: if isOwner(userId) && 
