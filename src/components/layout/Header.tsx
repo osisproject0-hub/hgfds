@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, BookHeart } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
@@ -15,6 +15,7 @@ import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { SiteSettings } from '@/app/admin/settings/page';
 import { Skeleton } from '../ui/skeleton';
+import Image from 'next/image';
 
 const navLinks = [
   { href: '/', label: 'Beranda' },
@@ -51,7 +52,7 @@ export default function Header() {
     )}>
       <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2" prefetch={false}>
-          <BookHeart className="h-8 w-8 text-primary" />
+          <Image src="https://ik.imagekit.io/zco6tu2vm/IMG-20251202-WA0110-removebg-preview.png" alt="Logo" width={32} height={32} />
           {isLoading ? 
             <Skeleton className="h-6 w-32" /> :
             <span className="text-xl font-bold font-headline text-foreground">
@@ -87,7 +88,7 @@ export default function Header() {
             <SheetContent side="right">
               <div className="flex flex-col gap-6 p-6">
                 <Link href="/" className="flex items-center gap-2" prefetch={false}>
-                  <BookHeart className="h-8 w-8 text-primary" />
+                  <Image src="https://ik.imagekit.io/zco6tu2vm/IMG-20251202-WA0110-removebg-preview.png" alt="Logo" width={32} height={32} />
                   <span className="text-xl font-bold font-headline text-foreground">
                     {schoolName}
                   </span>
@@ -115,5 +116,3 @@ export default function Header() {
     </header>
   );
 }
-
-    

@@ -2,13 +2,14 @@
 "use client"
 
 import Link from 'next/link';
-import { BookHeart, Twitter, Facebook, Instagram, Youtube } from 'lucide-react';
+import { Twitter, Facebook, Instagram, Youtube } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { SiteSettings } from '@/app/admin/settings/page';
 import { Skeleton } from '../ui/skeleton';
+import Image from 'next/image';
 
 const navLinks = [
   { href: '/', label: 'Beranda' },
@@ -31,7 +32,7 @@ export default function Footer() {
       <div className="container mx-auto grid grid-cols-1 gap-12 px-4 py-16 md:grid-cols-4 md:px-6">
         <div className="space-y-4 md:col-span-1">
           <Link href="/" className="flex items-center gap-2" prefetch={false}>
-            <BookHeart className="h-8 w-8 text-primary" />
+            <Image src="https://ik.imagekit.io/zco6tu2vm/IMG-20251202-WA0110-removebg-preview.png" alt="Logo" width={32} height={32} />
             <span className="text-xl font-bold font-headline">
               {schoolName}
             </span>

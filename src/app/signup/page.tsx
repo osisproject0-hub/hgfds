@@ -14,11 +14,12 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { BookHeart, Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth, useFirestore } from "@/firebase"
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
 import { doc, setDoc } from "firebase/firestore"
+import Image from "next/image"
 
 export default function AdminSignupPage() {
   const [displayName, setDisplayName] = useState("")
@@ -150,9 +151,9 @@ export default function AdminSignupPage() {
         </div>
       </div>
       <div className="hidden bg-primary lg:flex lg:items-center lg:justify-center lg:flex-col lg:text-center p-12">
-         <BookHeart className="h-24 w-24 text-primary-foreground mb-4" />
-          <h2 className="text-4xl font-headline font-bold text-primary-foreground">SMK LPPMRI 2 Kedungreja</h2>
-          <p className="text-lg text-primary-foreground/80 mt-2">Panel Kontrol Admin</p>
+        <Image src="https://ik.imagekit.io/zco6tu2vm/IMG-20251202-WA0110-removebg-preview.png" alt="Logo" width={96} height={96} />
+        <h2 className="text-4xl font-headline font-bold text-primary-foreground mt-4">SMK LPPMRI 2 Kedungreja</h2>
+        <p className="text-lg text-primary-foreground/80 mt-2">Panel Kontrol Admin</p>
       </div>
     </div>
   )

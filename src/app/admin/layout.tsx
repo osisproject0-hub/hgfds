@@ -15,13 +15,14 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { BookHeart, LogOut } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { adminNavLinks } from "./nav"
 import { Button } from "@/components/ui/button"
 import AdminHeader from "@/components/admin/AdminHeader"
 import { useAuth, useUser } from "@/firebase"
 import { signOut } from "firebase/auth"
 import { useToast } from "@/hooks/use-toast"
+import Image from "next/image"
 
 export default function AdminLayout({
   children,
@@ -74,7 +75,7 @@ export default function AdminLayout({
         <div className="flex h-full flex-col">
           <SidebarHeader>
             <Link href="/admin" className="flex items-center gap-2" prefetch={false}>
-              <BookHeart className="h-7 w-7 text-primary" />
+              <Image src="https://ik.imagekit.io/zco6tu2vm/IMG-20251202-WA0110-removebg-preview.png" alt="Logo" width={32} height={32} />
               <span className="text-lg font-bold font-headline text-sidebar-foreground group-data-[collapsible=icon]:hidden">
                 Panel Admin
               </span>
