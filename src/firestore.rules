@@ -77,13 +77,14 @@ service cloud.firestore {
     //----------------------------------------------------------------------
 
     match /users/{userId} {
+      // Allow user creation for anyone (signup). This is critical.
+      allow create: if true;
+
       // A user can get their own data, and Admins can get any user's data.
       allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      
       // Only Admins can list all users.
       allow list: if isAdmin();
-      
-      // Allow user creation for anyone (signup).
-      allow create: if true;
                       
       // A user can update their own displayName and photoURL.
       // An Admin can update any user's displayName and photoURL.
