@@ -27,6 +27,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu"
 import {
   AlertDialog,
@@ -43,7 +47,7 @@ import { MoreHorizontal } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useUser as useAuthUser } from "@/firebase"
 
-type UserRole = 'Admin' | 'User' | 'Super Admin';
+type UserRole = 'Super Admin' | 'Admin' | 'User';
 
 export type User = {
   id: string;
@@ -53,7 +57,7 @@ export type User = {
   role: UserRole;
 }
 
-const roles: UserRole[] = ['Admin', 'User'];
+const roles: UserRole[] = ['Super Admin', 'Admin', 'User'];
 
 export default function AdminUsersPage() {
   const firestore = useFirestore()
@@ -163,19 +167,26 @@ export default function AdminUsersPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        {roles.map((role) => (
-                          <DropdownMenuItem 
-                            key={role}
-                            disabled={user.role === role}
-                            onSelect={() => handleRoleChange(user.id, role)}
-                          >
-                            Jadikan {role}
-                          </DropdownMenuItem>
-                        ))}
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>Ubah Peran</DropdownMenuSubTrigger>
+                          <DropdownMenuPortal>
+                             <DropdownMenuSubContent>
+                                {roles.map((role) => (
+                                  <DropdownMenuItem 
+                                    key={role}
+                                    disabled={user.role === role}
+                                    onSelect={() => handleRoleChange(user.id, role)}
+                                  >
+                                    Jadikan {role}
+                                  </DropdownMenuItem>
+                                ))}
+                              </DropdownMenuSubContent>
+                          </DropdownMenuPortal>
+                        </DropdownMenuSub>
                         <DropdownMenuSeparator />
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600">Hapus</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600">Hapus Pengguna</DropdownMenuItem>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                               <AlertDialogHeader>

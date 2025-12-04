@@ -10,13 +10,17 @@ service cloud.firestore {
     function isSignedIn() {
       return request.auth != null;
     }
+    
+    function getUserData(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data;
+    }
 
-    // NOTE FOR PRODUCTION: For enhanced security, it's recommended to use custom claims
-    // to manage roles instead of allowing all signed-in users to act as admins.
-    // The previous implementation using custom claims is the correct long-term approach.
-    // This has been simplified to allow any authenticated user to pass for now.
     function isAdmin() {
-      return isSignedIn();
+      if (!isSignedIn()) {
+        return false;
+      }
+      let userRole = getUserData(request.auth.uid).role;
+      return userRole == 'Admin' || userRole == 'Super Admin';
     }
     
     //----------------------------------------------------------------------
@@ -67,7 +71,7 @@ service cloud.firestore {
 
     match /users/{userId} {
       // Any authenticated user can get any user's data and list all users (for the admin panel)
-      allow get, list: if isAdmin();
+      allow get, list: if isSignedIn();
       
       // Allow user creation.
       allow create: if true;

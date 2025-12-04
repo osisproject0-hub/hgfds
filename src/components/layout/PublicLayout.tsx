@@ -1,5 +1,6 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Chatbot from "@/components/chatbot/Chatbot";
 
 export default function PublicLayout({
     children,
@@ -13,6 +14,7 @@ export default function PublicLayout({
                 {children}
             </main>
             <Footer />
+            <Chatbot />
         </div>
     );
 }
