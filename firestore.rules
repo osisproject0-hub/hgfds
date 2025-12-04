@@ -26,7 +26,6 @@ service cloud.firestore {
     }
     
     function isFirstUser() {
-      // Check if the 'users' collection is empty.
       // This is a secure way to check for the first user during user creation.
       return !exists(/databases/$(database)/documents/users);
     }
@@ -62,12 +61,12 @@ service cloud.firestore {
     match /applications/{applicationId} {
       allow create: if true;
       // Admins can read, list, and update the status of applications.
-      allow read, list, update, delete: if isAdmin();
+      allow get, list, update, delete: if isAdmin();
     }
 
     match /contactMessages/{contactMessageId} {
       allow create: if true;
-      allow read, list: if isAdmin();
+      allow get, list: if isAdmin();
       // Make messages immutable after creation.
       allow update, delete: if false; 
     }
@@ -81,14 +80,15 @@ service cloud.firestore {
       // Allow both Admin and Super Admin to list users.
       allow list: if isAdmin();
       
-      // Allow user creation. The role is determined by the `isFirstUser` function.
+      // Allow user creation.
       // Anyone can create a user document for themselves, but the role is protected.
+      // The role is set to 'Super Admin' for the first user, and 'User' for subsequent users.
       allow create: if isOwner(userId) && 
                       (request.resource.data.role == 'Super Admin' ? isFirstUser() : request.resource.data.role == 'User');
                       
       // A user can update their own displayName and photoURL, but not their role.
       allow update: if isOwner(userId) && 
-                      !('role' in request.resource.data) &&
+                      !('role' in request.resource.data.keys()) &&
                       request.resource.data.keys().hasAny(['displayName', 'photoURL']);
       
       // Only a Super Admin can change other users' roles or delete users.

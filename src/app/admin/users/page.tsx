@@ -25,8 +25,8 @@ type User = {
   id: string;
   displayName: string;
   email: string;
-  photoURL?: string;
-  role: 'Admin' | 'User';
+  photoURL?: string | null;
+  role: 'Admin' | 'User' | 'Super Admin';
 }
 
 export default function AdminUsersPage() {
@@ -39,6 +39,16 @@ export default function AdminUsersPage() {
   }, [firestore])
 
   const { data: users, isLoading } = useCollection<User>(usersQuery)
+
+  const getInitials = (name?: string | null, email?: string) => {
+    if (name) {
+      return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    }
+    if (email) {
+      return email.charAt(0).toUpperCase();
+    }
+    return 'U';
+  }
 
   return (
     <Card>
@@ -67,8 +77,8 @@ export default function AdminUsersPage() {
               <TableRow key={user.id}>
                 <TableCell className="flex items-center gap-4">
                    <Avatar>
-                        <AvatarImage src={user.photoURL} alt={user.displayName} />
-                        <AvatarFallback>{user.displayName?.charAt(0) || user.email.charAt(0)}</AvatarFallback>
+                        {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
+                        <AvatarFallback>{getInitials(user.displayName, user.email)}</AvatarFallback>
                     </Avatar>
                     <div>
                         <div className="font-medium">{user.displayName || 'No Name'}</div>
@@ -76,7 +86,7 @@ export default function AdminUsersPage() {
                     </div>
                 </TableCell>
                 <TableCell>
-                    <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>{user.role}</Badge>
+                    <Badge variant={user.role === 'Admin' || user.role === 'Super Admin' ? 'default' : 'secondary'}>{user.role}</Badge>
                 </TableCell>
                 <TableCell className="text-right">
                     {/* Future actions like edit/delete can be added here */}
@@ -93,5 +103,3 @@ export default function AdminUsersPage() {
     </Card>
   )
 }
-
-    
