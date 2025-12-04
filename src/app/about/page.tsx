@@ -1,7 +1,7 @@
+
 "use client"
 
 import Image from "next/image"
-import { PlaceHolderImages } from "@/lib/placeholder-images"
 import { useDoc, useFirestore, useMemoFirebase } from "@/firebase"
 import { doc } from "firebase/firestore"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -11,9 +11,6 @@ export default function AboutPage() {
     const firestore = useFirestore()
     const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore])
     const { data: settings, isLoading } = useDoc<SiteSettings>(settingsDocRef)
-
-    const aboutImage = PlaceHolderImages.find(img => img.id === 'about-preview');
-    const heroImage = PlaceHolderImages.find(img => img.id === 'hero-bg');
     
     const VisionSkeleton = () => (
         <div className="bg-secondary p-8 rounded-lg shadow-sm">
@@ -42,16 +39,14 @@ export default function AboutPage() {
         <div className="bg-background text-foreground">
             {/* Hero Section */}
             <section className="relative h-64 md:h-80 w-full flex items-center justify-center text-center text-white">
-                {heroImage && (
-                    <Image
-                        src={heroImage.imageUrl}
-                        alt={heroImage.description}
-                        fill
-                        className="object-cover"
-                        priority
-                        data-ai-hint={heroImage.imageHint}
-                    />
-                )}
+                <Image
+                    src="https://picsum.photos/seed/about-hero/1200/400"
+                    alt="Gedung sekolah dari luar"
+                    fill
+                    className="object-cover"
+                    priority
+                    data-ai-hint="school building"
+                />
                 <div className="absolute inset-0 bg-primary/60" />
                 <div className="relative z-10 p-4">
                     <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl font-headline">
@@ -78,16 +73,14 @@ export default function AboutPage() {
                         </p>
                     </div>
                     <div className="relative h-80 w-full lg:h-[400px] rounded-xl overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-300">
-                        {aboutImage && (
-                            <Image
-                                src={aboutImage.imageUrl}
-                                alt={aboutImage.description}
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 100vw, 50vw"
-                                data-ai-hint={aboutImage.imageHint}
-                            />
-                        )}
+                        <Image
+                            src="https://picsum.photos/seed/about-content/600/800"
+                            alt="Siswa belajar di kelas"
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            data-ai-hint="students classroom"
+                        />
                     </div>
                 </div>
 
@@ -136,5 +129,3 @@ export default function AboutPage() {
         </div>
     )
 }
-
-    

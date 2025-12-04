@@ -4,7 +4,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ArrowRight } from 'lucide-react';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
@@ -12,7 +11,6 @@ import type { SiteSettings } from '@/app/admin/settings/page';
 import { Skeleton } from '../ui/skeleton';
 
 export default function AboutPreview() {
-  const aboutImage = PlaceHolderImages.find(img => img.id === 'about-preview');
   const firestore = useFirestore();
   const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore]);
   const { data: settings, isLoading } = useDoc<SiteSettings>(settingsDocRef);
@@ -51,21 +49,17 @@ export default function AboutPreview() {
              )}
           </div>
           <div className="relative h-80 w-full lg:h-[450px] rounded-xl overflow-hidden shadow-lg">
-            {aboutImage && (
-              <Image
-                src={aboutImage.imageUrl}
-                alt={aboutImage.description}
+            <Image
+                src="https://picsum.photos/seed/about-preview/600/450"
+                alt="Gedung sekolah dari depan"
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                data-ai-hint={aboutImage.imageHint}
-              />
-            )}
+                data-ai-hint="school building front"
+            />
           </div>
         </div>
       </div>
     </section>
   );
 }
-
-    

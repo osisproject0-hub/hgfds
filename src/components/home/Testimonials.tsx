@@ -75,7 +75,7 @@ export default function Testimonials() {
                   <Card className="h-full">
                     <CardContent className="flex flex-col items-center justify-center p-6 text-center">
                       <Image
-                        src={testimonial.imageUrl || "https://picsum.photos/seed/person/100"}
+                        src={testimonial.imageUrl}
                         alt={`Foto ${testimonial.name}`}
                         width={80}
                         height={80}

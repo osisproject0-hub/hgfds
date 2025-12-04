@@ -1,7 +1,7 @@
+
 "use client"
 
 import Image from "next/image"
-import { PlaceHolderImages } from "@/lib/placeholder-images"
 import { Button } from "@/components/ui/button"
 import { FileText, UserCheck, CalendarDays, CheckCircle, ArrowRight } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
@@ -13,8 +13,6 @@ import type { SiteSettings } from "@/app/admin/settings/page"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function AdmissionsPage() {
-    const heroImage = PlaceHolderImages.find(img => img.id === 'news-2');
-
     const firestore = useFirestore()
     const settingsDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'siteSettings', 'main') : null, [firestore])
     const { data: settings, isLoading } = useDoc<SiteSettings>(settingsDocRef)
@@ -58,16 +56,14 @@ export default function AdmissionsPage() {
         <div className="bg-background text-foreground">
             {/* Hero Section */}
             <section className="relative h-64 md:h-80 w-full flex items-center justify-center text-center text-white">
-                {heroImage && (
-                    <Image
-                        src={heroImage.imageUrl}
-                        alt={heroImage.description}
-                        fill
-                        className="object-cover"
-                        priority
-                        data-ai-hint={heroImage.imageHint}
-                    />
-                )}
+                <Image
+                    src="https://picsum.photos/seed/admissions-hero/1200/400"
+                    alt="Siswa tersenyum gembira"
+                    fill
+                    className="object-cover"
+                    priority
+                    data-ai-hint="happy students"
+                />
                 <div className="absolute inset-0 bg-primary/60" />
                 <div className="relative z-10 p-4">
                     <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl font-headline">
@@ -178,5 +174,3 @@ export default function AdmissionsPage() {
         </div>
     )
 }
-
-    

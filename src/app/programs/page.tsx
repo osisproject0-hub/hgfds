@@ -1,8 +1,8 @@
+
 "use client"
 
 import Image from "next/image"
 import Link from "next/link"
-import { PlaceHolderImages } from "@/lib/placeholder-images"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
 import { collection, query } from "firebase/firestore"
@@ -18,8 +18,6 @@ type Program = {
 };
 
 export default function ProgramsPage() {
-    const heroImage = PlaceHolderImages.find(img => img.id === 'program-multimedia');
-    
     const firestore = useFirestore();
     const programsQuery = useMemoFirebase(() => {
         if (!firestore) return null;
@@ -32,16 +30,14 @@ export default function ProgramsPage() {
         <div className="bg-background text-foreground">
             {/* Hero Section */}
             <section className="relative h-64 md:h-80 w-full flex items-center justify-center text-center text-white">
-                {heroImage && (
-                    <Image
-                        src={heroImage.imageUrl}
-                        alt={heroImage.description}
-                        fill
-                        className="object-cover"
-                        priority
-                        data-ai-hint={heroImage.imageHint}
-                    />
-                )}
+                <Image
+                    src="https://picsum.photos/seed/programs-hero/1200/400"
+                    alt="Siswa di bengkel kerja"
+                    fill
+                    className="object-cover"
+                    priority
+                    data-ai-hint="students workshop"
+                />
                 <div className="absolute inset-0 bg-primary/60" />
                 <div className="relative z-10 p-4">
                     <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl font-headline">
@@ -85,7 +81,7 @@ export default function ProgramsPage() {
                             <Link href={`/programs/${program.id}`} className="block">
                                <div className="relative h-56 w-full">
                                    <Image 
-                                       src={program.imageUrl || "https://picsum.photos/600/400"} 
+                                       src={program.imageUrl} 
                                        alt={`Gambar untuk ${program.name}`}
                                        fill
                                        className="object-cover"

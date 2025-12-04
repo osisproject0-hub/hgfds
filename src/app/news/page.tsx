@@ -1,8 +1,8 @@
+
 "use client"
 
 import Image from "next/image"
 import Link from "next/link"
-import { PlaceHolderImages } from "@/lib/placeholder-images"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
 import { collection, query, orderBy } from "firebase/firestore"
@@ -22,8 +22,6 @@ type NewsArticle = {
 };
 
 export default function NewsPage() {
-    const heroImage = PlaceHolderImages.find(img => img.id === 'news-1');
-    
     const firestore = useFirestore();
     const articlesQuery = useMemoFirebase(() => {
         if (!firestore) return null;
@@ -36,16 +34,14 @@ export default function NewsPage() {
         <div className="bg-background text-foreground">
             {/* Hero Section */}
             <section className="relative h-64 md:h-80 w-full flex items-center justify-center text-center text-white">
-                {heroImage && (
-                    <Image
-                        src={heroImage.imageUrl}
-                        alt={heroImage.description}
-                        fill
-                        className="object-cover"
-                        priority
-                        data-ai-hint={heroImage.imageHint}
-                    />
-                )}
+                <Image
+                    src="https://picsum.photos/seed/news-hero/1200/400"
+                    alt="Acara sekolah"
+                    fill
+                    className="object-cover"
+                    priority
+                    data-ai-hint="school event"
+                />
                 <div className="absolute inset-0 bg-primary/60" />
                 <div className="relative z-10 p-4">
                     <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl font-headline">
@@ -81,7 +77,7 @@ export default function NewsPage() {
                             <Link href={`/news/${article.id}`} className="block">
                                <div className="relative h-56 w-full">
                                    <Image 
-                                       src={article.imageUrl || "https://picsum.photos/seed/news/600/400"} 
+                                       src={article.imageUrl} 
                                        alt={`Gambar untuk ${article.title}`}
                                        fill
                                        className="object-cover"
