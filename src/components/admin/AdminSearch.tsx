@@ -11,8 +11,8 @@ import {
   CommandSeparator,
 } from '@/components/ui/command';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
-import { type User } from '@/app/admin/users/page';
+import { collection, where, query } from 'firebase/firestore';
+import { type User } from '@/app/admin/teachers/page';
 import { type NewsArticle } from '@/app/admin/content/news/page';
 import { type Program } from '@/app/admin/content/programs/page';
 import { GraduationCap, Newspaper, User as UserIcon, Search, FileText, Sparkles, Loader2 } from 'lucide-react';
@@ -36,7 +36,7 @@ export default function AdminSearch() {
   const firestore = useFirestore();
   const { toast } = useToast();
 
-  const usersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'users') : null, [firestore]);
+  const usersQuery = useMemoFirebase(() => firestore ? query(collection(firestore, 'users'), where('role', 'in', ['Super Admin', 'Guru'])) : null, [firestore]);
   const newsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'newsArticles') : null, [firestore]);
   const programsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'vocationalPrograms') : null, [firestore]);
   const applicationsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'applications') : null, [firestore]);
@@ -137,11 +137,11 @@ export default function AdminSearch() {
           <CommandSeparator />
 
           {users && users.length > 0 && (
-            <CommandGroup heading="Pengguna">
+            <CommandGroup heading="Guru & Staff">
               {users.map(user => (
                 <CommandItem
                   key={`user-${user.id}`}
-                  onSelect={() => runCommand(() => router.push('/admin/users'))}
+                  onSelect={() => runCommand(() => router.push('/admin/teachers'))}
                 >
                   <UserIcon className="mr-2 h-4 w-4" />
                   <span>{user.displayName}</span>

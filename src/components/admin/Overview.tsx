@@ -9,17 +9,17 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
-import { collection, query } from "firebase/firestore"
+import { collection, query, where } from "firebase/firestore"
 import { GraduationCap, Users, Newspaper, Mail } from "lucide-react"
 
 export default function Overview() {
   const firestore = useFirestore()
 
-  const usersQuery = useMemoFirebase(() => {
+  const teachersQuery = useMemoFirebase(() => {
     if (!firestore) return null
-    return query(collection(firestore, "users"))
+    return query(collection(firestore, "users"), where("role", "in", ["Guru", "Super Admin"]))
   }, [firestore])
-  const { data: users } = useCollection(usersQuery)
+  const { data: teachers } = useCollection(teachersQuery)
 
   const applicationsQuery = useMemoFirebase(() => {
     if (!firestore) return null
@@ -41,7 +41,7 @@ export default function Overview() {
 
   const overviewData = [
     { title: "Pendaftar Baru", value: applications?.length ?? 0, icon: GraduationCap },
-    { title: "Total Pengguna", value: users?.length ?? 0, icon: Users },
+    { title: "Total Guru & Staff", value: teachers?.length ?? 0, icon: Users },
     { title: "Artikel Berita", value: news?.length ?? 0, icon: Newspaper },
     { title: "Total Pesan", value: messages?.length ?? 0, icon: Mail },
   ]
