@@ -103,6 +103,9 @@ export default function AdminTeachersPage() {
     });
   }
 
+  const currentUserData = users?.find(u => u.id === currentUser?.uid);
+  const isSuperAdmin = currentUserData?.role === 'Super Admin';
+
   return (
     <Card>
       <CardHeader>
@@ -150,24 +153,32 @@ export default function AdminTeachersPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-                      <DropdownMenuSub>
-                        <DropdownMenuSubTrigger>Ubah Peran</DropdownMenuSubTrigger>
-                        <DropdownMenuSubContent>
-                           {userRoles.map(role => (
-                            <DropdownMenuItem 
-                                key={role} 
-                                onSelect={() => handleRoleChange(user.id, role)}
-                                disabled={role === user.role}
-                            >
-                                {role}
-                            </DropdownMenuItem>
-                           ))}
-                        </DropdownMenuSubContent>
-                      </DropdownMenuSub>
+                      {isSuperAdmin && (
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>Ubah Peran</DropdownMenuSubTrigger>
+                          <DropdownMenuSubContent>
+                            {userRoles.map(role => (
+                              <DropdownMenuItem 
+                                  key={role} 
+                                  onSelect={() => handleRoleChange(user.id, role)}
+                                  disabled={role === user.role}
+                              >
+                                  {role}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuSubContent>
+                        </DropdownMenuSub>
+                      )}
                       <DropdownMenuSeparator />
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600">Hapus</DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onSelect={(e) => e.preventDefault()} 
+                              className="text-red-600"
+                              disabled={!isSuperAdmin && user.role !== 'Siswa'}
+                            >
+                              Hapus
+                            </DropdownMenuItem>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                               <AlertDialogHeader>
