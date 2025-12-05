@@ -27,7 +27,7 @@ service cloud.firestore {
         return false;
       }
       let userRole = getUserData(request.auth.uid).role;
-      return userRole == 'Admin' || userRole == 'Super Admin';
+      return userRole == 'Guru' || userRole == 'Super Admin';
     }
     
     //----------------------------------------------------------------------
@@ -52,6 +52,16 @@ service cloud.firestore {
     match /galleryAlbums/{docId} {
       allow get, list: if true;
       allow write: if isAdmin();
+    }
+
+    //----------------------------------------------------------------------
+    // Student Data
+    //----------------------------------------------------------------------
+
+    match /students/{studentId} {
+        allow get, list, write: if isAdmin();
+        // Future: allow student to read their own data
+        // allow get: if isAdmin() || request.auth.uid == studentId
     }
     
     //----------------------------------------------------------------------
@@ -101,11 +111,11 @@ service cloud.firestore {
                       );
       
       // Only Super Admins can delete any user (except themselves).
-      // Admins can delete users with the 'User' role, but not other Admins or Super Admins.
+      // Admins can delete users with the 'Siswa' role, but not other Admins or Super Admins.
       allow delete: if isSignedIn() && request.auth.uid != userId && 
                       (
                         isSuperAdmin() ||
-                        (isAdmin() && getUserData(userId).role == 'User')
+                        (isAdmin() && getUserData(userId).role == 'Siswa')
                       );
     }
 

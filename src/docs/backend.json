@@ -172,8 +172,8 @@
           "type": "string",
           "enum": [
             "Super Admin",
-            "Admin",
-            "User"
+            "Guru",
+            "Siswa"
           ]
         },
         "photoURL": {
@@ -184,6 +184,21 @@
       "required": [
         "email"
       ]
+    },
+    "StudentProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "StudentProfile",
+      "type": "object",
+      "description": "Represents a student's profile information.",
+      "properties": {
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "nisn": { "type": "string" },
+        "programId": { "type": "string" },
+        "enrollmentDate": { "type": "string", "format": "date-time" }
+      },
+      "required": ["firstName", "lastName", "email", "nisn", "programId", "enrollmentDate"]
     },
     "ContactMessage": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -429,6 +444,15 @@
             "$ref": "#/entities/UserProfile"
           },
           "description": "Stores user profile information for all users, including admins. The 'role' field is used for authorization."
+        }
+      },
+      {
+        "path": "/students/{studentId}",
+        "definition": {
+          "schema": {
+            "$ref": "#/entities/StudentProfile"
+          },
+          "description": "Stores detailed profiles for enrolled students."
         }
       },
       {
