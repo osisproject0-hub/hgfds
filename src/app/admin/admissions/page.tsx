@@ -38,6 +38,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal } from "lucide-react"
@@ -97,7 +98,7 @@ export default function AdminAdmissionsPage() {
   const { data: applications, isLoading: isLoadingApps } = useCollection<Application>(applicationsQuery)
   const { data: programs, isLoading: isLoadingPrograms } = useCollection<Program>(programsQuery)
   
-  const programMap = useMemoFirebase(() => {
+  const programMap = React.useMemo(() => {
     if (!programs) return new Map();
     return new Map(programs.map(p => [p.id, p.name]));
   }, [programs]);

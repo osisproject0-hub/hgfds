@@ -3,23 +3,18 @@
 import { useEffect } from 'react';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import { useToast } from '@/hooks/use-toast';
 
 /**
  * An invisible component that listens for globally emitted 'permission-error' events.
- * It displays a user-friendly toast notification instead of throwing a hard error.
+ * It logs the detailed error to the console for developers but does not show a toast.
  */
 export function FirebaseErrorListener() {
-  const { toast } = useToast();
-
   useEffect(() => {
     const handleError = (error: FirestorePermissionError) => {
-      // Display a toast notification instead of throwing an error
-      toast({
-        variant: "destructive",
-        title: "Akses Ditolak",
-        description: "Anda tidak memiliki izin untuk melakukan tindakan ini. Periksa peran Anda atau hubungi administrator.",
-      });
+      // Log the detailed, developer-friendly error message to the console.
+      // This prevents showing a disruptive toast to the end-user for permission issues
+      // while still providing debugging information for developers.
+      console.error("Caught Firestore Permission Error:", error.message);
     };
 
     errorEmitter.on('permission-error', handleError);
@@ -27,7 +22,7 @@ export function FirebaseErrorListener() {
     return () => {
       errorEmitter.off('permission-error', handleError);
     };
-  }, [toast]);
+  }, []);
 
   // This component renders nothing.
   return null;
