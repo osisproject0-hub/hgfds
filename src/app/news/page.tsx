@@ -13,6 +13,7 @@ import { id } from "date-fns/locale"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import type { SiteSettings } from "@/app/admin/settings/page"
+import { Badge } from "@/components/ui/badge"
 
 type NewsArticle = {
   id: string;
@@ -21,6 +22,7 @@ type NewsArticle = {
   author: string;
   publicationDate: any; // Firestore timestamp
   imageUrl: string;
+  category?: string;
 };
 
 export default function NewsPage() {
@@ -93,10 +95,13 @@ export default function NewsPage() {
                                </div>
                             </Link>
                            <CardHeader>
-                               <CardDescription>
-                                   {article.publicationDate ? format(new Date(article.publicationDate.seconds * 1000), "dd MMMM yyyy", { locale: id }) : ''}
-                               </CardDescription>
-                               <CardTitle className="text-xl font-headline text-primary">
+                                <div className="flex justify-between items-center text-sm text-muted-foreground">
+                                    <span>
+                                        {article.publicationDate ? format(new Date(article.publicationDate.seconds * 1000), "dd MMMM yyyy", { locale: id }) : ''}
+                                    </span>
+                                    {article.category && <Badge variant="outline">{article.category}</Badge>}
+                                </div>
+                               <CardTitle className="text-xl font-headline text-primary mt-1">
                                  <Link href={`/news/${article.id}`}>{article.title}</Link>
                                </CardTitle>
                            </CardHeader>

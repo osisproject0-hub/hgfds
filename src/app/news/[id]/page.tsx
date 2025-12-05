@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
-import { Calendar, User, ArrowLeft } from "lucide-react"
+import { Calendar, User, ArrowLeft, Tag } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 type NewsArticle = {
   id: string;
@@ -18,6 +19,7 @@ type NewsArticle = {
   author: string;
   publicationDate: any; // Firestore timestamp
   imageUrl: string;
+  category?: string;
 };
 
 export default function NewsDetailPage({ params }: { params: { id: string } }) {
@@ -86,6 +88,12 @@ export default function NewsDetailPage({ params }: { params: { id: string } }) {
                              <User className="h-4 w-4" />
                             <span>Oleh: {article.author}</span>
                         </div>
+                        {article.category && (
+                             <div className="flex items-center gap-2">
+                                <Tag className="h-4 w-4" />
+                                <Badge variant="secondary">{article.category}</Badge>
+                            </div>
+                        )}
                     </div>
 
                     <div className="prose prose-lg max-w-none text-muted-foreground whitespace-pre-wrap">

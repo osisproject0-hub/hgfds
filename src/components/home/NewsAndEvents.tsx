@@ -18,6 +18,7 @@ type NewsArticle = {
   title: string;
   publicationDate: any; // Firestore timestamp
   imageUrl: string;
+  category?: string;
 };
 
 export default function NewsAndEvents() {
@@ -73,7 +74,7 @@ export default function NewsAndEvents() {
                   </div>
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-2">
-                       <Badge variant="secondary">Berita</Badge>
+                       <Badge variant="secondary">{post.category || 'Berita'}</Badge>
                        <p className="text-sm text-muted-foreground">{post.publicationDate ? format(new Date(post.publicationDate.seconds * 1000), 'd MMM yyyy', { locale: indonesiaLocale }) : ''}</p>
                     </div>
                     <h3 className="text-lg font-bold font-headline leading-snug group-hover:text-primary transition-colors">

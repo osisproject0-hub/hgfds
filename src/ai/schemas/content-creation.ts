@@ -1,6 +1,6 @@
-import { z } from 'zod';
 
-const newsCategories = ["Berita", "Pengumuman", "Acara"] as const;
+import { z } from 'zod';
+import { newsCategories } from '@/app/admin/content/news/NewsArticleForm';
 
 export const CreateContentInputSchema = z.object({
   prompt: z.string().describe('The user\'s prompt to create content.'),
@@ -17,3 +17,4 @@ export const CreateContentOutputSchema = z.object({
     }).describe("The structured data of the created content.")
 });
 export type CreateContentOutput = z.infer<typeof CreateContentOutputSchema>;
+
