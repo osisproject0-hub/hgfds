@@ -9,12 +9,14 @@ import { Button } from '@/components/ui/button';
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase"
 import { collection, query, limit } from "firebase/firestore"
 import { Skeleton } from '../ui/skeleton';
+import { Icon } from '@/components/ui/icon';
 
 type Program = {
   id: string;
   name: string;
   description: string;
   imageUrl: string;
+  icon: string;
 }
 
 export default function FeaturedPrograms() {
@@ -63,7 +65,8 @@ export default function FeaturedPrograms() {
                     </div>
                   </Link>
                   <div className="p-6">
-                    <h3 className="text-xl font-bold font-headline mb-2">
+                    <h3 className="text-xl font-bold font-headline mb-2 flex items-center gap-2">
+                       <Icon name={program.icon as any} className="text-primary h-6 w-6" />
                        <Link href={`/programs/${program.id}`}>{program.name}</Link>
                     </h3>
                     <p className="text-muted-foreground text-sm mb-6 min-h-[60px] line-clamp-3">{program.description}</p>
