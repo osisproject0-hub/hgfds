@@ -58,7 +58,7 @@ export type User = {
 
 const userRoles: User['role'][] = ['Super Admin', 'Guru', 'Siswa'];
 
-export default function AdminTeachersPage() {
+export default function AdminUsersPage() {
   const firestore = useFirestore()
   const { user: currentUser } = useCurrentUser();
   const { toast } = useToast()
@@ -102,6 +102,9 @@ export default function AdminTeachersPage() {
         description: `Pengguna ${userName} telah dihapus dari sistem.`
     });
   }
+
+  const userRole = users?.find(u => u.id === currentUser?.uid)?.role;
+  const isSuperAdmin = userRole === 'Super Admin';
 
   return (
     <Card>
@@ -150,24 +153,32 @@ export default function AdminTeachersPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-                      <DropdownMenuSub>
-                        <DropdownMenuSubTrigger>Ubah Peran</DropdownMenuSubTrigger>
-                        <DropdownMenuSubContent>
-                           {userRoles.map(role => (
-                            <DropdownMenuItem 
-                                key={role} 
-                                onSelect={() => handleRoleChange(user.id, role)}
-                                disabled={role === user.role}
-                            >
-                                {role}
-                            </DropdownMenuItem>
-                           ))}
-                        </DropdownMenuSubContent>
-                      </DropdownMenuSub>
+                      {isSuperAdmin && (
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>Ubah Peran</DropdownMenuSubTrigger>
+                          <DropdownMenuSubContent>
+                            {userRoles.map(role => (
+                              <DropdownMenuItem 
+                                  key={role} 
+                                  onSelect={() => handleRoleChange(user.id, role)}
+                                  disabled={role === user.role}
+                              >
+                                  {role}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuSubContent>
+                        </DropdownMenuSub>
+                      )}
                       <DropdownMenuSeparator />
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600">Hapus</DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onSelect={(e) => e.preventDefault()} 
+                              className="text-red-600"
+                              disabled={!isSuperAdmin && user.role !== 'Siswa'}
+                            >
+                              Hapus
+                            </DropdownMenuItem>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                               <AlertDialogHeader>

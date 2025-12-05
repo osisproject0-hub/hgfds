@@ -52,21 +52,22 @@ export default function AdminSignupPage() {
         // 2. Update user profile in Auth
         await updateProfile(user, { displayName })
 
-        // 3. Create user document in Firestore with a default 'User' role.
+        // 3. Create user document in Firestore with a default 'Siswa' role.
         const userDocRef = doc(firestore, "users", user.uid)
         await setDocumentNonBlocking(userDocRef, {
             displayName: displayName,
             email: user.email,
             photoURL: user.photoURL,
-            role: 'User' // Default role for new sign-ups
+            role: 'Siswa' // Default role for new sign-ups is 'Siswa'
         }, {})
 
         toast({
           title: "Pendaftaran Berhasil",
-          description: `Selamat datang, ${displayName}! Mengarahkan Anda ke dasbor admin.`,
+          description: `Selamat datang, ${displayName}! Akun Anda telah dibuat.`,
         })
         
-        router.push("/admin")
+        // Redirect to a non-admin page or a student dashboard if it exists
+        router.push("/")
 
       } catch (error: any) {
         console.error("Gagal mendaftar:", error)
@@ -93,7 +94,7 @@ export default function AdminSignupPage() {
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid w-[350px] gap-6">
           <div className="grid gap-2 text-center">
-            <h1 className="text-3xl font-bold font-headline">Buat Akun Admin</h1>
+            <h1 className="text-3xl font-bold font-headline">Buat Akun</h1>
             <p className="text-balance text-muted-foreground">
               Masukkan detail Anda untuk membuat akun baru.
             </p>
@@ -151,7 +152,7 @@ export default function AdminSignupPage() {
       <div className="hidden bg-primary lg:flex lg:items-center lg:justify-center lg:flex-col lg:text-center p-12">
         <Image src="https://ik.imagekit.io/zco6tu2vm/IMG-20251202-WA0110-removebg-preview.png" alt="Logo" width={96} height={96} />
         <h2 className="text-4xl font-headline font-bold text-primary-foreground mt-4">SMK LPPMRI 2 Kedungreja</h2>
-        <p className="text-lg text-primary-foreground/80 mt-2">Panel Kontrol Admin</p>
+        <p className="text-lg text-primary-foreground/80 mt-2">Mencetak Generasi Unggul dan Berkarakter</p>
       </div>
     </div>
   )

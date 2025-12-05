@@ -22,12 +22,11 @@ service cloud.firestore {
       return getUserData(request.auth.uid).role == 'Super Admin';
     }
 
-    function isAdmin() {
+    function isGuru() {
       if (!isSignedIn()) {
         return false;
       }
-      let userRole = getUserData(request.auth.uid).role;
-      return userRole == 'Guru' || userRole == 'Super Admin';
+      return getUserData(request.auth.uid).role == 'Guru';
     }
     
     //----------------------------------------------------------------------
@@ -36,22 +35,22 @@ service cloud.firestore {
 
     match /vocationalPrograms/{docId} {
       allow get, list: if true;
-      allow write: if isAdmin();
+      allow write: if isGuru() || isSuperAdmin();
     }
 
     match /newsArticles/{docId} {
       allow get, list: if true;
-      allow write: if isAdmin();
+      allow write: if isGuru() || isSuperAdmin();
     }
     
     match /testimonials/{docId} {
         allow get, list: if true;
-        allow write: if isAdmin();
+        allow write: if isGuru() || isSuperAdmin();
     }
 
     match /galleryAlbums/{docId} {
       allow get, list: if true;
-      allow write: if isAdmin();
+      allow write: if isGuru() || isSuperAdmin();
     }
 
     //----------------------------------------------------------------------
@@ -59,9 +58,9 @@ service cloud.firestore {
     //----------------------------------------------------------------------
 
     match /students/{studentId} {
-        allow get, list, write: if isAdmin();
+        allow get, list, write: if isGuru() || isSuperAdmin();
         // Future: allow student to read their own data
-        // allow get: if isAdmin() || request.auth.uid == studentId
+        // allow get: if isGuru() || isSuperAdmin() || request.auth.uid == studentId
     }
     
     //----------------------------------------------------------------------
@@ -70,15 +69,12 @@ service cloud.firestore {
 
     match /applications/{applicationId} {
       allow create: if true;
-      // Admins can manage all applications
-      allow get, list, update, delete: if isAdmin();
+      allow get, list, update, delete: if isGuru() || isSuperAdmin();
     }
 
     match /contactMessages/{contactMessageId} {
       allow create: if true;
-      // Admins can read and delete submitted messages
-      allow get, list, delete: if isAdmin();
-      // Messages are immutable by clients
+      allow get, list, delete: if isGuru() || isSuperAdmin();
       allow update: if false; 
     }
 
@@ -91,31 +87,28 @@ service cloud.firestore {
       allow create: if true;
 
       // A user can get their own data, and Admins can get any user's data.
-      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow get: if isSignedIn() && (request.auth.uid == userId || isGuru() || isSuperAdmin());
       
       // Only Admins can list all users.
-      allow list: if isAdmin();
+      allow list: if isGuru() || isSuperAdmin();
                       
       // A user can update their own displayName and photoURL.
-      // An Admin can update any user's displayName and photoURL.
-      // A Super Admin can update any user's displayName, photoURL, and role.
-      // No one can change their own role unless they are a Super Admin.
+      // A Super Admin can update any user's role.
+      // No one can change their own role unless they are a Super Admin (even then, they can't demote themselves via this rule).
       allow update: if isSignedIn() && 
                       (
-                        // Case 1: Super Admin can update anything on any user
-                        isSuperAdmin() ||
+                        // Case 1: Super Admin can update another user's role
+                        (isSuperAdmin() && request.auth.uid != userId) ||
                         // Case 2: Any user can update their own non-role fields
-                        (request.auth.uid == userId && !('role' in request.resource.data.keys())) ||
-                        // Case 3: An admin can update other users' non-role fields
-                        (isAdmin() && request.auth.uid != userId && !('role' in request.resource.data.keys()))
+                        (request.auth.uid == userId && !('role' in request.resource.data.keys()))
                       );
       
       // Only Super Admins can delete any user (except themselves).
-      // Admins can delete users with the 'Siswa' role, but not other Admins or Super Admins.
+      // Gurus can delete users with the 'Siswa' role, but not other Gurus or Super Admins.
       allow delete: if isSignedIn() && request.auth.uid != userId && 
                       (
                         isSuperAdmin() ||
-                        (isAdmin() && getUserData(userId).role == 'Siswa')
+                        (isGuru() && getUserData(userId).role == 'Siswa')
                       );
     }
 
@@ -124,7 +117,7 @@ service cloud.firestore {
     //----------------------------------------------------------------------
     match /siteSettings/main {
       allow get, list: if true;
-      allow write: if isAdmin();
+      allow write: if isGuru() || isSuperAdmin();
     }
   }
 }
